@@ -31,14 +31,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
-    "apps.accounts",
-    "apps.catalog",
-    "apps.subscriptions",
-    "apps.billing",
-    "apps.discounts",
-    "apps.payments",
-    "apps.notifications",
-    "apps.dashboard",
+    "apps.core.accounts",
+    "apps.core.catalog",
+    "apps.core.subscriptions",
+    "apps.core.billing",
+    "apps.finance.discounts",
+    "apps.finance.payments",
+    "apps.finance.notifications",
+    "apps.finance.dashboard",
 ]
 
 MIDDLEWARE = [
