@@ -38,7 +38,10 @@ Append new rows; never rewrite old ones (supersede instead). Format: ID · decis
 | D-027 | 2026-10-31 | `docs/NOTIFICATIONS.md` was described as "provided with this plan" but was not in the repo. It is authored here from D-020…D-025 and KICKOFF §8 Phase 7. Replace with the original if it turns up. |
 | D-028 | 2026-10-31 | Local dev uses a Python 3.10 venv (machine has 3.10 only; Django 5.2 supports it). Docker images use 3.12 per D-002. Don't use 3.11+-only syntax. |
 | D-029 | 2026-10-31 | `DATABASE_URL` unset falls back to sqlite for zero-setup dev. Billing concurrency tests (`select_for_update(skip_locked)`) require Postgres — run them against `db_app`. |
+<<<<<<< HEAD
 | D-031 | 2026-10-31 | Demo logins keep the literal `admin@demo` / `staff@demo` / `customer@demo` from KICKOFF. They are created through the ORM (no email validation), and the login API takes a plain string, so they work; but those addresses are **not valid for the signup/staff-creation forms** (`EmailField` needs a dot in the domain). Demo data entered through forms must use e.g. `new@demo.com`. |
 | D-032 | 2026-10-31 | `docs/PRD.md` replaced by the user-supplied PRD v1.0 (FR-xxx requirement IDs). The earlier scope/traceability table is superseded by its §11. |
 | D-033 | 2026-10-31 | Public signup does not auto-login at the API; the SPA logs in right after (`signup` then `login`). `GET /auth/me/` for anonymous returns 403 (DRF session auth), and the SPA treats 401/403 on `me` as "logged out". |
+=======
+>>>>>>> origin/main
 | D-030 | 2026-10-31 | Docker Desktop 4.86 launched on the dev laptop but its engine never came up (it logged an error dialog at startup and `docker info` hangs; `wsl.exe` is not on PATH), so Odoo could not be started during Phase 0. Per KICKOFF §8 Phase 0 fallback: `ODOO_ENABLED=false`, logged in `TASKS.md ## Cut`; Odoo is brought up on a Docker-capable machine and retried in Phase 4. Compose files, `odoo.conf` and the smoke script are written and ready. |

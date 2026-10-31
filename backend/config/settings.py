@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
+<<<<<<< HEAD
     "apps.core.accounts",
     "apps.core.catalog",
     "apps.core.subscriptions",
@@ -39,6 +40,16 @@ INSTALLED_APPS = [
     "apps.finance.payments",
     "apps.finance.notifications",
     "apps.finance.dashboard",
+=======
+    "apps.accounts",
+    "apps.catalog",
+    "apps.subscriptions",
+    "apps.billing",
+    "apps.discounts",
+    "apps.payments",
+    "apps.notifications",
+    "apps.dashboard",
+>>>>>>> origin/main
 ]
 
 MIDDLEWARE = [
@@ -78,8 +89,11 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "accounts.User"
+<<<<<<< HEAD
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "apps.core.accounts.validators.PasswordRuleValidator"}]  # D-006
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # reset links live 24 h; single-use because the hash changes
+=======
+>>>>>>> origin/main
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"

@@ -15,6 +15,7 @@ Response `200` (or `503` when the app DB is down):
 ```
 `odoo.status` ∈ `ok | disabled | down` (`down` adds `error`). `status` is `degraded` when anything is down.
 
+<<<<<<< HEAD
 ## Phase 1 — Auth, roles (implemented)
 Anonymous POSTs are CSRF-checked too: call `GET /auth/csrf/` first and send `X-CSRFToken`. Anonymous access to authenticated endpoints → **403**.
 User JSON: `{id, email, name, role, profile}`; `profile` is `null` for staff/admin, else
@@ -34,6 +35,20 @@ User JSON: `{id, email, name, role, profile}`; `profile` is `null` for staff/adm
 | POST | `/staff/` | admin | `{email, name?, password, role?: "staff"(default)|"admin"}` → 201 `{id,email,name,role,is_active,created_at}` (password never returned). Staff/customer/anon → 403 |
 
 Password policy error text: `"Password needs at least 9 characters, an uppercase letter, a lowercase letter, a special character."` (lists only what is missing).
+=======
+## Phase 1 — Auth, roles (planned)
+| Method | Path | Role | Request → Response |
+|---|---|---|---|
+| GET | `/auth/csrf/` | any | sets cookie → `{"detail":"ok"}` |
+| POST | `/auth/signup/` | anon | `{email, password, name, whatsapp_number?, whatsapp_opt_in?}` → 201 user (role=customer) |
+| POST | `/auth/login/` | anon | `{email, password}` → user · 400 on bad creds |
+| POST | `/auth/logout/` | auth | → 204 |
+| GET | `/auth/me/` | auth | → `{id,email,name,role,profile{...}}` · 403 if anonymous |
+| PATCH | `/auth/me/` | auth | `{name?, profile{phone?, address?, whatsapp_number?, whatsapp_opt_in?, email_notifications?}}` |
+| POST | `/auth/password-reset/request/` | anon | `{email}` → 200 always (no account enumeration); emails link |
+| POST | `/auth/password-reset/confirm/` | anon | `{uid, token, new_password}` → 200 · 400 invalid/expired |
+| GET/POST | `/staff/` | admin | list/create staff `{email,name,password,role: staff|admin}` |
+>>>>>>> origin/main
 
 ## Phase 2 — Catalog (planned)
 `/products/` (+ nested `variants`), `/taxes/`, `/payment-terms/`, `/plans/` — ModelViewSets. Read: staff+admin. Write: admin.
