@@ -53,11 +53,16 @@ class Subscription(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 <<<<<<< HEAD
+<<<<<<< HEAD
     # `discount` (attached subscription-level rule) is added by the discounts app in Phase 5.
 =======
     # the attached subscription-scope discount rule (Phase 5); product-scope rules apply by themselves
     discount = models.ForeignKey("discounts.Discount", null=True, blank=True, on_delete=models.SET_NULL, related_name="subscriptions")
 >>>>>>> other-repo/phase-5-discounts
+=======
+    # the attached subscription-scope discount rule (Phase 5); product-scope rules apply by themselves
+    discount = models.ForeignKey("discounts.Discount", null=True, blank=True, on_delete=models.SET_NULL, related_name="subscriptions")
+>>>>>>> other-repo/phase-8a
 
     objects = scoped_manager("customer")
 

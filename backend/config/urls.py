@@ -25,6 +25,9 @@ urlpatterns = [
     path("api/", include("apps.finance.discounts.urls")),
     path("api/", include("apps.finance.payments.urls")),
     path("api/", include("apps.finance.notifications.urls")),
+<<<<<<< HEAD
 
+=======
+>>>>>>> other-repo/phase-8a
     re_path(r"^(?!api/|admin/|static/).*$", spa),
 ]

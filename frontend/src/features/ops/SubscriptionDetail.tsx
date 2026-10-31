@@ -18,7 +18,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> other-repo/phase-8a
 // Attach/detach a subscription-scope discount. Product discounts apply by themselves and are not listed here.
 function DiscountControl({ sub, onChange, onError }: { sub: any; onChange: (fresh: any) => void; onError: (m: string) => void }) {
   const [choice, setChoice] = useState("");
@@ -53,7 +56,10 @@ function DiscountControl({ sub, onChange, onError }: { sub: any; onChange: (fres
   );
 }
 
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-5-discounts
+=======
+>>>>>>> other-repo/phase-8a
 export default function SubscriptionDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
@@ -112,10 +118,15 @@ export default function SubscriptionDetail() {
           </dl>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
           {sub.status !== "closed" && <DiscountControl sub={sub} onChange={refresh} onError={setError} />}
 
 >>>>>>> other-repo/phase-5-discounts
+=======
+          {sub.status !== "closed" && <DiscountControl sub={sub} onChange={refresh} onError={setError} />}
+
+>>>>>>> other-repo/phase-8a
           <div className="overflow-x-auto rounded border bg-white">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-slate-600">
