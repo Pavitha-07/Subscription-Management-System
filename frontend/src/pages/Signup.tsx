@@ -53,12 +53,6 @@ export default function Signup() {
   return (
     <AuthShell title={`Create your ${kind} account`}>
       <button className="mb-3 text-sm text-sky-700" onClick={() => setKind(null)}>← Change account type</button>
-      {isCustomer && (
-        <>
-          <GoogleButton label="Sign up with Google" run={() => loginWithGoogle({ account_type: "customer" }).then(() => navigate("/", { replace: true }))} />
-          <p className="my-4 flex items-center gap-3 text-xs text-slate-500"><span className="h-px flex-1 bg-slate-200" />or with email<span className="h-px flex-1 bg-slate-200" /></p>
-        </>
-      )}
       <ResourceForm
         key={kind}
         submitLabel="Sign up"
@@ -69,6 +63,12 @@ export default function Signup() {
           : { name: v.name, email: v.email, password: v.password, account_type: kind, signup_code: v.signup_code })}
         successMessage="Account created. We sent a verification link to your email: open it, then log in."
       />
+      {isCustomer && (
+        <>
+          <p className="my-4 flex items-center gap-3 text-xs text-slate-500"><span className="h-px flex-1 bg-slate-200" />or<span className="h-px flex-1 bg-slate-200" /></p>
+          <GoogleButton label="Sign up with Google" run={() => loginWithGoogle({ account_type: "customer" }).then(() => navigate("/", { replace: true }))} />
+        </>
+      )}
       <p className="mt-4 text-sm">Already registered? <Link className="text-sky-700" to="/login">Log in</Link></p>
     </AuthShell>
   );
