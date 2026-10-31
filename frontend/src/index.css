@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  nav, .no-print { display: none !important; }
+}
