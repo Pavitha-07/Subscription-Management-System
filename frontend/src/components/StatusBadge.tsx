@@ -9,7 +9,12 @@ const COLORS: Record<string, string> = {
   error: "bg-red-100 text-red-800", sent: "bg-green-100 text-green-800", delivered: "bg-green-100 text-green-800",
   read: "bg-green-100 text-green-800", failed: "bg-red-100 text-red-800", queued: "bg-amber-100 text-amber-800",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+  // payment attempts
+  completed: "bg-green-100 text-green-800", reversed: "bg-slate-300 text-slate-700",
+>>>>>>> 6a6a6ed (phase 6: payments (attempt status, retry, reversal, attempt limit, audit trail) + Postgres lock-scope fix)
   // discount rule state
   scheduled: "bg-blue-100 text-blue-800", expired: "bg-slate-300 text-slate-700", exhausted: "bg-amber-100 text-amber-800", inactive: "bg-slate-200 text-slate-700",
 >>>>>>> other-repo/phase-5-discounts
