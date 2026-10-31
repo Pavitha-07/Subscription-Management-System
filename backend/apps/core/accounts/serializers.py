@@ -1,3 +1,6 @@
+import hmac
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -79,6 +82,8 @@ class SignupSerializer(serializers.Serializer):
     name = serializers.CharField(required=False, allow_blank=True, max_length=150, default="")
     whatsapp_number = serializers.CharField(required=False, allow_blank=True, default="")
     whatsapp_opt_in = serializers.BooleanField(required=False, default=False)
+    account_type = serializers.ChoiceField(choices=[Role.CUSTOMER, Role.STAFF, Role.ADMIN], required=False, default=Role.CUSTOMER)
+    signup_code = serializers.CharField(required=False, allow_blank=True, write_only=True, default="")
 
     def validate_email(self, value):
         return value.strip().lower()
@@ -87,14 +92,26 @@ class SignupSerializer(serializers.Serializer):
         return whatsapp_number(value)
 
     def validate(self, attrs):
+        kind = attrs["account_type"]
+        if kind != Role.CUSTOMER:  # D-044: staff/admin only with the server's secret code; empty setting = disabled
+            expected = {Role.STAFF: settings.STAFF_SIGNUP_CODE, Role.ADMIN: settings.ADMIN_SIGNUP_CODE}[kind]
+            if not expected:
+                raise serializers.ValidationError({"account_type": f"{kind.title()} sign-up is not enabled on this server."})
+            if not hmac.compare_digest(attrs["signup_code"].encode(), expected.encode()):
+                raise serializers.ValidationError({"signup_code": "That registration code is not valid."})
+            return attrs
         if attrs["whatsapp_opt_in"] and not attrs["whatsapp_number"]:
             raise serializers.ValidationError({"whatsapp_number": "A number is required to opt in to WhatsApp."})
         return attrs
 
     @transaction.atomic
     def create(self, v):
-        # role is never read from input: public signup creates customers only (FR-AUTH-01)
-        user = User.objects.create_user(v["email"], v["password"], name=v["name"], role=Role.CUSTOMER)
+        # `role` is never read from input; the account type was checked against the signup code in validate() (D-044)
+        kind = v["account_type"]
+        extra = {"is_superuser": True} if kind == Role.ADMIN else {}
+        user = User.objects.create_user(v["email"], v["password"], name=v["name"], role=kind, **extra)
+        if kind != Role.CUSTOMER:
+            return user
         CustomerProfile.objects.create(
             user=user,
             whatsapp_number=v["whatsapp_number"],
@@ -102,6 +119,15 @@ class SignupSerializer(serializers.Serializer):
             whatsapp_opted_in_at=timezone.now() if v["whatsapp_opt_in"] else None,
         )
         return user
+
+
+class FirebaseLoginSerializer(SignupSerializer):
+    """Sign in / sign up with a Firebase ID token. Email comes from the verified token, there is no local password.
+    The sign-up fields only matter the first time an email is seen; for existing users they are ignored."""
+
+    email = None
+    password = None
+    id_token = serializers.CharField(write_only=True)
 
 
 class LoginSerializer(serializers.Serializer):
@@ -115,7 +141,8 @@ class MeNameSerializer(serializers.Serializer):
 
 class StaffSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[unique_email])
-    password = serializers.CharField(write_only=True, validators=[strong_password])
+    # optional: with Firebase login the new staff member signs in with Google / their own Firebase password
+    password = serializers.CharField(write_only=True, required=False, validators=[strong_password])
     role = serializers.ChoiceField(choices=[Role.STAFF, Role.ADMIN], default=Role.STAFF)
 
     class Meta:
@@ -127,18 +154,15 @@ class StaffSerializer(serializers.ModelSerializer):
         return value.strip().lower()
 
     def create(self, v):
-        return User.objects.create_user(v["email"], v["password"], name=v.get("name", ""), role=v["role"])
+        return User.objects.create_user(v["email"], v.get("password"), name=v.get("name", ""), role=v["role"])
 
 
-<<<<<<< HEAD:backend/apps/accounts/serializers.py
-=======
 class CustomerPickSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "email", "name"]
 
 
->>>>>>> recovery-old-main:backend/apps/core/accounts/serializers.py
 class ResetRequestSerializer(serializers.Serializer):
     email = serializers.CharField()
 

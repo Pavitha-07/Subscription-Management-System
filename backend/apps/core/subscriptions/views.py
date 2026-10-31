@@ -5,18 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.core.accounts.permissions import IsStaffOrAdmin
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 from apps.finance.discounts.serializers import AttachSerializer
->>>>>>> other-repo/phase-5-discounts
-=======
-from apps.finance.discounts.serializers import AttachSerializer
->>>>>>> other-repo/phase-8a
-=======
-from apps.finance.discounts.serializers import AttachSerializer
->>>>>>> other-repo/phase-8b
 
 from . import services
 from .models import QuotationTemplate, Subscription
@@ -71,14 +60,6 @@ class SubscriptionViewSet(
         services.transition(self.get_object(), s.validated_data["to"], request.user)
         return self._detail(pk)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> other-repo/phase-8a
-=======
->>>>>>> other-repo/phase-8b
     @action(detail=True, methods=["post", "delete"])
     def discount(self, request, pk=None):
         """Attach (POST {discount}) or detach (DELETE) the subscription-scope discount; it applies from the next invoice."""
@@ -94,13 +75,6 @@ class SubscriptionViewSet(
         sub.save(update_fields=["discount"])
         return self._detail(pk)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> other-repo/phase-5-discounts
-=======
->>>>>>> other-repo/phase-8a
-=======
->>>>>>> other-repo/phase-8b
     @action(detail=True, methods=["post"])
     def renew(self, request, pk=None):
         services.renew(self.get_object(), request.user)

@@ -13,19 +13,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-<<<<<<< HEAD:backend/apps/accounts/views.py
-from .models import Role
-from .permissions import IsAdmin
-from .serializers import (
-    LoginSerializer, MeNameSerializer, ProfileSerializer, ResetConfirmSerializer,
-=======
 from apps.finance.notifications.services import notify
 
+from . import firebase
 from .models import Role
 from .permissions import IsAdmin, IsStaffOrAdmin
 from .serializers import (
-    CustomerPickSerializer, LoginSerializer, MeNameSerializer, ProfileSerializer, ResetConfirmSerializer,
->>>>>>> recovery-old-main:backend/apps/core/accounts/views.py
+    CustomerPickSerializer, FirebaseLoginSerializer, LoginSerializer, MeNameSerializer, ProfileSerializer, ResetConfirmSerializer,
     ResetRequestSerializer, SignupSerializer, StaffSerializer, UserSerializer,
 )
 
@@ -54,11 +48,7 @@ class SignupView(APIView):
         s = SignupSerializer(data=request.data)
         s.is_valid(raise_exception=True)
         user = s.save()
-<<<<<<< HEAD:backend/apps/accounts/views.py
-        # TODO(phase 4): notify(WELCOME) once the notifications service exists
-=======
         notify("WELCOME", user, user, context={"customer_name": user.name or user.email})  # never raises, never blocks
->>>>>>> recovery-old-main:backend/apps/core/accounts/views.py
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
@@ -73,6 +63,35 @@ class LoginView(APIView):
         user = authenticate(request, username=s.validated_data["email"].strip().lower(), password=s.validated_data["password"])
         if not user:
             return Response({"detail": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
+        login(request, user)
+        return Response(UserSerializer(user).data)
+
+
+@anon_post
+class FirebaseLoginView(APIView):
+    """Exchange a Firebase ID token (Google or email/password sign-in) for the normal Django session cookie."""
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        s = FirebaseLoginSerializer(data=request.data)
+        s.is_valid(raise_exception=True)
+        v = s.validated_data
+        try:
+            claims = firebase.verify(v["id_token"])
+        except ValueError:
+            return Response({"detail": "Sign-in expired or invalid. Please try again."}, status=status.HTTP_401_UNAUTHORIZED)
+        email = (claims.get("email") or "").strip().lower()
+        if not email or not claims.get("email_verified"):  # unverified emails could impersonate an existing account
+            return Response({"detail": "Verify your email address, then sign in again."}, status=status.HTTP_403_FORBIDDEN)
+        user = User.objects.filter(email__iexact=email).first()
+        if user is None:
+            user = s.create({**v, "email": email, "password": None, "name": v["name"] or claims.get("name", "")})
+            if user.role == Role.CUSTOMER:
+                notify("WELCOME", user, user, context={"customer_name": user.name or user.email})
+        elif not user.is_active:
+            return Response({"detail": "This account is disabled."}, status=status.HTTP_403_FORBIDDEN)
         login(request, user)
         return Response(UserSerializer(user).data)
 
@@ -154,8 +173,6 @@ class PasswordResetConfirmView(APIView):
         return Response({"detail": "Password updated. You can log in now."})
 
 
-<<<<<<< HEAD:backend/apps/accounts/views.py
-=======
 class CustomerListView(generics.ListAPIView):
     """Picker for forms (subscription customer): staff and admin only."""
 
@@ -167,7 +184,6 @@ class CustomerListView(generics.ListAPIView):
         return User.objects.filter(role=Role.CUSTOMER).order_by("email")
 
 
->>>>>>> recovery-old-main:backend/apps/core/accounts/views.py
 class StaffListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin]
     serializer_class = StaffSerializer

@@ -92,19 +92,7 @@ def build_invoice(sub, start, end, as_of, hooks=discount_hooks):
     product_lines = product_lines_for(sub)
     if not product_lines:
         raise ValueError(f"{sub.number} has no lines to bill")
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    picks = hooks.reserve(hooks.pick_discounts(sub, product_lines, start, end))
-=======
     picks = hooks.reserve(hooks.pick_discounts(sub, product_lines, start, end, as_of))
->>>>>>> other-repo/phase-5-discounts
-=======
-    picks = hooks.reserve(hooks.pick_discounts(sub, product_lines, start, end, as_of))
->>>>>>> other-repo/phase-8a
-=======
-    picks = hooks.reserve(hooks.pick_discounts(sub, product_lines, start, end, as_of))
->>>>>>> other-repo/phase-8b
     priced = price_lines(product_lines, picks)
     invoice = Invoice.objects.create(
         subscription=sub, customer_id=sub.customer_id, status=Invoice.Status.DRAFT, invoice_date=as_of,

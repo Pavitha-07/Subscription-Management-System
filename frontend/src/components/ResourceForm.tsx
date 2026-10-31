@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
-import { ApiError } from "../api/client";
-
-export type FieldType = "text" | "email" | "password" | "tel" | "number" | "date" | "textarea" | "select" | "checkbox";
-=======
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useFieldArray, useForm, UseFormReturn } from "react-hook-form";
@@ -20,7 +13,6 @@ export interface OptionsFrom {
   label: (row: any) => string;
   expand?: (rows: any[]) => { value: string; label: string }[]; // one row -> many options (e.g. product variants)
 }
->>>>>>> recovery-old-main
 
 export interface Field {
   name: string;
@@ -28,12 +20,9 @@ export interface Field {
   type?: FieldType;
   required?: boolean;
   options?: { value: string; label: string }[];
-<<<<<<< HEAD
-=======
   optionsFrom?: OptionsFrom; // select / multiselect options loaded from a list endpoint
   lineFields?: Field[]; // for type "lines": sub-fields of each row (carry the row id in a hidden `_id`)
   addLabel?: string;
->>>>>>> recovery-old-main
   hint?: string;
   placeholder?: string;
   autoComplete?: string;
@@ -46,26 +35,14 @@ interface Props {
   onSubmit: (values: Record<string, any>) => Promise<unknown>;
   defaultValues?: Record<string, any>;
   onSuccess?: () => void;
-<<<<<<< HEAD
-=======
   onCancel?: () => void;
->>>>>>> recovery-old-main
   successMessage?: string;
   resetOnSuccess?: boolean;
 }
 
-<<<<<<< HEAD
-const input = "w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none";
-
-// DRF error bodies: {field: [msg]}, {detail: msg}, or nested {profile: {field: [msg]}} -> flat {field: msg}
-function flatten(body: unknown, out: Record<string, string> = {}): Record<string, string> {
-  if (body && typeof body === "object") {
-    for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
-      if (Array.isArray(v)) out[k] = v.map(String).join(" ");
-=======
 type Form = UseFormReturn<Record<string, any>>;
 
-const input = "w-full rounded border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none";
+const input = "w-full rounded border border-slate-300 px-3 py-2 focus:border-sky-500 focus:outline-none";
 const MONEY = /^-?\d+(\.\d{1,2})?$/;
 
 // DRF error bodies: {field: [msg]}, {detail: msg}, or nested {profile: {field: [msg]}} -> flat {field: msg}
@@ -73,7 +50,6 @@ export function flatten(body: unknown, out: Record<string, string> = {}): Record
   if (body && typeof body === "object") {
     for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
       if (Array.isArray(v)) out[k] = v.map((x) => (typeof x === "object" ? Object.values(x as object).flat().join(" ") : String(x))).join(" ");
->>>>>>> recovery-old-main
       else if (typeof v === "string") out[k] = v;
       else flatten(v, out);
     }
@@ -81,10 +57,6 @@ export function flatten(body: unknown, out: Record<string, string> = {}): Record
   return out;
 }
 
-<<<<<<< HEAD
-export default function ResourceForm({ fields, submitLabel, onSubmit, defaultValues, onSuccess, successMessage, resetOnSuccess }: Props) {
-  const { register, handleSubmit, setError, reset, getValues, formState } = useForm<Record<string, any>>({ defaultValues });
-=======
 function useOptions(f: Field) {
   const q = useQuery({
     queryKey: ["options", f.optionsFrom?.endpoint],
@@ -183,21 +155,15 @@ function Lines({ f, form }: { f: Field; form: Form }) {
 export default function ResourceForm({ fields, submitLabel, onSubmit, defaultValues, onSuccess, onCancel, successMessage, resetOnSuccess }: Props) {
   const form = useForm<Record<string, any>>({ defaultValues });
   const { handleSubmit, setError, clearErrors, reset, formState } = form;
->>>>>>> recovery-old-main
   const { errors, isSubmitting } = formState;
   const [done, setDone] = useState(false);
 
   const submit = handleSubmit(async (values) => {
     setDone(false);
-<<<<<<< HEAD
-    try {
-      await onSubmit(values);
-=======
     const body = { ...values };
     for (const f of fields) if (f.type === "date" && body[f.name] === "") body[f.name] = null; // blank date -> null
     try {
       await onSubmit(body);
->>>>>>> recovery-old-main
       setDone(true);
       if (resetOnSuccess) reset(defaultValues);
       onSuccess?.();
@@ -217,37 +183,6 @@ export default function ResourceForm({ fields, submitLabel, onSubmit, defaultVal
   });
 
   return (
-<<<<<<< HEAD
-    <form onSubmit={submit} className="space-y-4" noValidate>
-      {errors.root?.server && <p role="alert" className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{errors.root.server.message}</p>}
-      {done && successMessage && <p role="status" className="rounded bg-green-50 px-3 py-2 text-sm text-green-800">{successMessage}</p>}
-      {fields.map((f) => {
-        const rules = {
-          required: f.required && f.type !== "checkbox" ? `${f.label} is required.` : false,
-          validate: f.validate ? (v: any) => f.validate!(v, getValues()) : undefined,
-        };
-        const err = errors[f.name]?.message as string | undefined;
-        const id = `f-${f.name}`;
-        let control: ReactNode;
-        if (f.type === "textarea") control = <textarea id={id} rows={3} className={input} {...register(f.name, rules)} />;
-        else if (f.type === "select")
-          control = (
-            <select id={id} className={input} {...register(f.name, rules)}>
-              {f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          );
-        else if (f.type === "checkbox") control = <input id={id} type="checkbox" className="mr-2" {...register(f.name)} />;
-        else control = <input id={id} type={f.type ?? "text"} placeholder={f.placeholder} autoComplete={f.autoComplete} className={input} {...register(f.name, rules)} />;
-
-        return (
-          <div key={f.name}>
-            {f.type === "checkbox" ? (
-              <label htmlFor={id} className="flex items-start text-sm">{control}<span>{f.label}</span></label>
-            ) : (
-              <>
-                <label htmlFor={id} className="mb-1 block text-sm font-medium">{f.label}{f.required && " *"}</label>
-                {control}
-=======
     // clearErrors first: a server error set with setError on a rule-less field (e.g. a `lines` list) would otherwise block every resubmit
     <form onSubmit={(e) => { clearErrors(); return submit(e); }} className="space-y-4" noValidate>
       {errors.root?.server && <p role="alert" className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{errors.root.server.message}</p>}
@@ -265,7 +200,6 @@ export default function ResourceForm({ fields, submitLabel, onSubmit, defaultVal
                 {f.type === "multiselect" ? <MultiSelect f={f} form={form} />
                   : f.type === "lines" ? <Lines f={f} form={form} />
                   : <ScalarControl f={f} form={form} id={id} name={f.name} />}
->>>>>>> recovery-old-main
               </>
             )}
             {f.hint && !err && <p className="mt-1 text-xs text-slate-500">{f.hint}</p>}
@@ -273,18 +207,12 @@ export default function ResourceForm({ fields, submitLabel, onSubmit, defaultVal
           </div>
         );
       })}
-<<<<<<< HEAD
-      <button type="submit" disabled={isSubmitting} className="rounded bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
-        {isSubmitting ? "Please wait…" : submitLabel}
-      </button>
-=======
       <div className="flex gap-2">
-        <button type="submit" disabled={isSubmitting} className="rounded bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+        <button type="submit" disabled={isSubmitting} className="rounded bg-sky-600 px-4 py-2 font-medium text-white hover:bg-sky-700 disabled:opacity-50">
           {isSubmitting ? "Please wait…" : submitLabel}
         </button>
         {onCancel && <button type="button" className="rounded border px-4 py-2" onClick={onCancel}>Cancel</button>}
       </div>
->>>>>>> recovery-old-main
     </form>
   );
 }

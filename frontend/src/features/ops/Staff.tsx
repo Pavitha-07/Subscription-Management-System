@@ -27,11 +27,11 @@ export default function Staff() {
             submitLabel="Create staff account"
             resetOnSuccess
             defaultValues={{ role: "staff" }}
-            successMessage="Account created. Share the temporary password securely."
+            successMessage="Account created. They can now sign in with Google, or with email and password using this address."
             fields={[
               { name: "name", label: "Name" },
               { name: "email", label: "Email", type: "email", required: true },
-              { name: "password", label: "Temporary password", type: "password", required: true, autoComplete: "new-password", hint: "Same rules as everyone: 9+ characters, upper, lower and special." },
+              { name: "password", label: "Local password (optional)", type: "password", autoComplete: "new-password", hint: "Only used when local login is enabled (dev). Leave empty in production: staff sign in through Firebase with this email." },
               { name: "role", label: "Role", type: "select", options: [{ value: "staff", label: "Staff" }, { value: "admin", label: "Admin" }] },
             ]}
             onSubmit={(v) => api.post("/api/staff/", v)}

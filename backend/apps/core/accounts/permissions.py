@@ -1,8 +1,4 @@
-<<<<<<< HEAD:backend/apps/accounts/permissions.py
-from rest_framework.permissions import BasePermission
-=======
 from rest_framework.permissions import SAFE_METHODS, BasePermission
->>>>>>> recovery-old-main:backend/apps/core/accounts/permissions.py
 
 
 class _HasRole(BasePermission):
@@ -23,8 +19,6 @@ class IsStaffOrAdmin(_HasRole):
 
 class IsCustomer(_HasRole):
     roles = ("customer",)
-<<<<<<< HEAD:backend/apps/accounts/permissions.py
-=======
 
 
 class ReadOnlyOrAdmin(BasePermission):
@@ -37,4 +31,3 @@ class ReadOnlyOrAdmin(BasePermission):
         if request.method in SAFE_METHODS:
             return u.role in ("admin", "staff")
         return u.role == "admin"
->>>>>>> recovery-old-main:backend/apps/core/accounts/permissions.py

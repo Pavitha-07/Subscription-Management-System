@@ -123,42 +123,14 @@ class SubscriptionSerializer(SubscriptionListSerializer):
     lines = LineSerializer(many=True, required=False)
     status_log = StatusLogSerializer(many=True, read_only=True)
     actions = serializers.SerializerMethodField()
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     discount_name = serializers.CharField(source="discount.name", default="", read_only=True)
->>>>>>> other-repo/phase-5-discounts
-=======
-    discount_name = serializers.CharField(source="discount.name", default="", read_only=True)
->>>>>>> other-repo/phase-8a
-=======
-    discount_name = serializers.CharField(source="discount.name", default="", read_only=True)
->>>>>>> other-repo/phase-8b
 
     class Meta(SubscriptionListSerializer.Meta):
         fields = SubscriptionListSerializer.Meta.fields + [
             "template", "quotation_valid_until", "notes", "created_by", "lines", "status_log", "actions",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        ]
-        read_only_fields = SubscriptionListSerializer.Meta.read_only_fields + ["template", "quotation_valid_until", "created_by"]
-=======
             "discount", "discount_name",
         ]
         read_only_fields = SubscriptionListSerializer.Meta.read_only_fields + ["template", "quotation_valid_until", "created_by", "discount"]
->>>>>>> other-repo/phase-5-discounts
-=======
-            "discount", "discount_name",
-        ]
-        read_only_fields = SubscriptionListSerializer.Meta.read_only_fields + ["template", "quotation_valid_until", "created_by", "discount"]
->>>>>>> other-repo/phase-8a
-=======
-            "discount", "discount_name",
-        ]
-        read_only_fields = SubscriptionListSerializer.Meta.read_only_fields + ["template", "quotation_valid_until", "created_by", "discount"]
->>>>>>> other-repo/phase-8b
 
     def get_lines_total(self, sub):
         return str(services.q2(sum((l.amount for l in sub.lines.all()), services.ZERO)))

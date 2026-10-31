@@ -1,19 +1,6 @@
-<<<<<<< HEAD
 """Idempotent demo seed. Phase 1: the three demo logins. Later phases extend this file (catalog, subscriptions, --big).
 
 Run from backend/:  python scripts/seed_demo.py
-=======
-<<<<<<< HEAD
-"""Idempotent demo seed. Phase 1: the three demo logins. Later phases extend this file (catalog, subscriptions, --big).
-
-Run from backend/:  python scripts/seed_demo.py
-=======
-"""Idempotent demo seed: the three demo logins, a small catalog, one active subscription.
-
-Run from backend/:  python scripts/seed_demo.py [--big]
---big adds ~5k subscriptions, ~15k invoices, ~10k payments (bulk_create) for the performance gate (scripts/perf_check.py).
->>>>>>> other-repo/phase-8b
->>>>>>> recovery-old-main
 """
 import os
 import sys
@@ -26,40 +13,14 @@ import django  # noqa: E402
 
 django.setup()
 
-<<<<<<< HEAD
-from apps.accounts.models import CustomerProfile, Role, User  # noqa: E402
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> other-repo/phase-8a
-from datetime import date  # noqa: E402
-=======
-from datetime import date, timedelta  # noqa: E402
->>>>>>> other-repo/phase-8b
-from decimal import Decimal  # noqa: E402
-
 from apps.core.accounts.models import CustomerProfile, Role, User  # noqa: E402
-from apps.core.catalog.models import PaymentTerm, Plan, Product, Tax  # noqa: E402
-from apps.core.subscriptions import services  # noqa: E402
-from apps.core.subscriptions.models import Subscription, SubscriptionLine  # noqa: E402
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-from apps.core.accounts.models import CustomerProfile, Role, User  # noqa: E402
->>>>>>> other-repo/phase-5-discounts
-=======
->>>>>>> other-repo/phase-8a
-=======
->>>>>>> other-repo/phase-8b
->>>>>>> recovery-old-main
 
-PASSWORD = "Demo@12345"
-# Created through the ORM, so emails like admin@demo skip EmailField validation (D-031).
+PASSWORD = "Mohid@3009"
+ADMIN_EMAIL = "mo.test.1.acc@gmail.com"
+# customer@demo is created through the ORM, so it skips EmailField validation (D-031).
 DEMO_USERS = [
-    ("admin@demo", "Demo Admin", Role.ADMIN),
-    ("staff@demo", "Demo Staff", Role.STAFF),
+    (ADMIN_EMAIL, "Demo Admin", Role.ADMIN),
+    ("mo.test.2.acc@gmail.com", "Demo Staff", Role.STAFF),
     ("customer@demo", "Demo Customer", Role.CUSTOMER),
 ]
 
@@ -76,207 +37,95 @@ def seed_users():
         print(f"user  {email:<16} {role}")
 
 
-<<<<<<< HEAD
-if __name__ == "__main__":
-    seed_users()
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> other-repo/phase-8a
-=======
->>>>>>> other-repo/phase-8b
-def seed_catalog():
-    gst, _ = Tax.objects.get_or_create(name="GST 18%", defaults={"rate": Decimal("18.00")})
-    for name, days in [("Immediate", 0), ("Net 15", 15), ("Net 30", 30)]:
-        PaymentTerm.objects.get_or_create(name=name, defaults={"days": days})
-    product, _ = Product.objects.get_or_create(
-        name="Brightloop Suite", defaults={"type": Product.Type.SOFTWARE, "sales_price": Decimal("999.00")}
-    )
-    product.taxes.add(gst)
-    for name, price, period in [
-        ("Suite Monthly", "999.00", Plan.Period.MONTHLY),
-        ("Suite Yearly", "9990.00", Plan.Period.YEARLY),
-    ]:
-        Plan.objects.get_or_create(name=name, defaults={"product": product, "price": Decimal(price), "billing_period": period})
-    print("catalog  1 tax, 3 terms, 1 product, 2 plans")
+def seed_data():
+    """Demo business data: catalog, customers, subscriptions, discounts, billed + confirmed invoices, payments of every kind.
+    Idempotent: does nothing when the demo catalog already exists. Dates are relative to today so the data always looks current."""
+    from datetime import timedelta
+    from decimal import Decimal
 
+    from django.utils import timezone
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> other-repo/phase-8a
-=======
->>>>>>> other-repo/phase-8b
-def seed_subscription():
-    """One active subscription for the demo customer, walked through the real state machine."""
-    admin, customer = User.objects.get(email="admin@demo"), User.objects.get(email="customer@demo")
-    plan = Plan.objects.get(name="Suite Monthly")
-    if Subscription.objects.filter(customer=customer, plan=plan).exists():
+    from apps.core.billing import engine
+    from apps.core.billing import services as billing
+    from apps.core.billing.models import Invoice
+    from apps.core.catalog.models import PaymentTerm, Plan, Product, Tax
+    from apps.core.subscriptions.models import Subscription, SubscriptionLine
+    from apps.core.subscriptions.services import next_number
+    from apps.finance.discounts.models import Discount
+    from apps.finance.payments import services as pay
+
+    if Product.objects.filter(name="CRM Suite").exists():
+        print("demo data already present; skipping")
         return
-    sub = Subscription.objects.create(
-        number=services.next_number(), customer=customer, plan=plan, start_date=date.today(),
-        payment_term=PaymentTerm.objects.get(is_default=True), created_by=admin,
-    )
-    price = services.line_price(plan, plan.product)
-    line = SubscriptionLine.objects.create(
-        subscription=sub, product=plan.product, description=plan.name, quantity=1, unit_price=price, amount=price
-    )
-    line.taxes.set(plan.product.taxes.all())
-    for to in ("quotation", "confirmed", "active"):
-        services.transition(sub, to, admin)
-    print(f"subscription  {sub.number} active for customer@demo")
+    today = timezone.localdate()
+    admin = User.objects.get(email=ADMIN_EMAIL)
+
+    gst = Tax.objects.create(name="GST 18%", rate=18)
+    term, _ = PaymentTerm.objects.get_or_create(name="Net 15", defaults={"days": 15, "is_default": True})
+    products = {}
+    for name, kind, price in [("CRM Suite", "software", "1560.00"), ("Helpdesk Pro", "software", "900.00"), ("Analytics Add-on", "addon", "450.00")]:
+        p = Product.objects.create(name=name, type=kind, sales_price=Decimal(price))
+        p.taxes.add(gst)
+        products[name] = p
+    plans = {
+        "monthly": Plan.objects.create(name="Monthly", product=products["CRM Suite"], price=Decimal("1560.00"), billing_period="monthly", min_quantity=1, allow_pause=True, allow_renew=True),
+        "yearly": Plan.objects.create(name="Yearly", product=products["Helpdesk Pro"], price=Decimal("9000.00"), billing_period="yearly", min_quantity=1, allow_renew=True),
+        "weekly": Plan.objects.create(name="Weekly", product=products["Analytics Add-on"], price=Decimal("450.00"), billing_period="weekly", min_quantity=1),
+    }
+
+    customers = []
+    for i, (name, company) in enumerate([("Asha Rao", "Acme Retail"), ("Ben Fernandes", "Bluefin Labs"), ("Chitra Nair", "Cedar Foods"), ("Dev Malhotra", "Delta Logistics")]):
+        u = User.objects.create_user(f"{name.split()[0].lower()}@demo", PASSWORD, name=name, role=Role.CUSTOMER)
+        CustomerProfile.objects.create(user=u, company_name=company, phone=f"+9198765432{i}0", whatsapp_number=f"+9198765432{i}0", whatsapp_opt_in=i % 2 == 0)
+        customers.append(u)
+
+    launch = Discount.objects.create(name="Launch 15%", code="LAUNCH15", type="percent", value=Decimal("15"), scope="product", usage_limit=5, created_by=admin)
+    launch.products.add(products["CRM Suite"])
+    loyalty = Discount.objects.create(name="Loyalty 10%", code="LOYAL10", type="percent", value=Decimal("10"), scope="subscription", created_by=admin)
+
+    # (customer, plan, product, qty, days ago started, status, discount)
+    specs = [
+        (0, "monthly", "CRM Suite", 5, 75, "active", loyalty), (1, "monthly", "CRM Suite", 3, 40, "active", None),
+        (2, "yearly", "Helpdesk Pro", 1, 20, "active", None), (3, "weekly", "Analytics Add-on", 4, 22, "active", None),
+        (0, "weekly", "Analytics Add-on", 2, 10, "paused", None), (1, "monthly", "CRM Suite", 2, -5, "quotation", None),
+        (3, "monthly", "CRM Suite", 1, -10, "draft", None),
+    ]
+    for ci, plan, prod, qty, ago, status, disc in specs:
+        start = today - timedelta(days=ago)
+        sub = Subscription.objects.create(
+            number=next_number(), customer=customers[ci], plan=plans[plan], start_date=start, payment_term=term, status=status,
+            next_invoice_date=start if status == "active" else None, discount=disc,
+            expiry_date=start + timedelta(days=365) if plan == "yearly" else None,
+        )
+        unit = products[prod].sales_price
+        line = SubscriptionLine.objects.create(subscription=sub, product=products[prod], quantity=qty, unit_price=unit, amount=unit * qty, description=products[prod].name)
+        line.taxes.add(gst)
+
+    # billing runs at past dates (the invoice date is the run date) so some invoices are long overdue; the two newest stay draft
+    for days_ago in (70, 45, 20, 0):
+        engine.run_billing(today - timedelta(days=days_ago))
+    invoices = list(Invoice.objects.order_by("id"))
+    for inv in invoices[:-2]:
+        billing.confirm(inv, admin)
+    confirmed = list(Invoice.objects.filter(status="confirmed").order_by("id"))
+    for inv, kind in zip(confirmed[1:], ["full", "partial", "fail2then_pay", "fail3", "full"]):  # the oldest stays unpaid and overdue
+        inv.refresh_from_db()
+        due = inv.amount_due
+        if kind == "full":
+            pay.record_payment(inv, admin, {"amount": due, "method": "bank_transfer", "status": "completed"})
+        elif kind == "partial":
+            pay.record_payment(inv, admin, {"amount": (due / 3).quantize(Decimal("0.01")), "method": "upi", "status": "completed"})
+        elif kind == "fail2then_pay":
+            for _ in range(2):
+                pay.record_payment(inv, admin, {"amount": due, "method": "card", "status": "failed", "failure_reason": "card declined"})
+            pay.record_payment(inv, admin, {"amount": due, "method": "upi", "status": "completed"})
+        elif kind == "fail3":
+            for _ in range(3):
+                pay.record_payment(inv, admin, {"amount": due, "method": "card", "status": "failed", "failure_reason": "insufficient funds"})
+    print(f"data  {len(customers)} customers, {Subscription.objects.count()} subscriptions, {Invoice.objects.count()} invoices")
 
 
-<<<<<<< HEAD
-=======
-BIG_DOMAIN = "big.seed"
-
-
-def _big_status(i):
-    r = i % 100
-    return "active" if r < 82 else "paused" if r < 90 else "closed" if r < 96 else "confirmed" if r < 98 else "quotation" if r < 99 else "draft"
-
-
-def seed_big(n_customers=500, n_subs=5000):
-    """Bulk data with a realistic status / overdue mix. Rows are written directly (not through the engine) for speed,
-    but every invoice and payment keeps the engine's invariants: total = subtotal + 18 % tax, amount_due = total minus
-    completed payments, paid <=> amount_due = 0, one invoice per (subscription, period_start).
-    ponytail: no StatusLog / PaymentEvent history rows for bulk data; add them if a screen ever needs history at scale."""
-    import random
-
-    from django.contrib.auth.hashers import make_password
-    from django.db import transaction
-
-    from apps.core.billing.engine import next_period_start
-    from apps.core.billing.models import Invoice, InvoiceLine
-    from apps.core.subscriptions.models import Counter
-    from apps.finance.payments.models import Payment
-
-    if User.objects.filter(email__endswith="@" + BIG_DOMAIN).exists():
-        print("big  already seeded, skipping")
-        return
-    rnd, today, cent = random.Random(8), date.today(), Decimal("0.01")
-    gst = Tax.objects.get(name="GST 18%")
-    product = Product.objects.get(name="Brightloop Suite")
-    team, _ = Plan.objects.get_or_create(
-        name="Team Monthly", defaults={"product": product, "price": Decimal("2499.00"), "billing_period": Plan.Period.MONTHLY})
-    weekly, _ = Plan.objects.get_or_create(
-        name="Suite Weekly", defaults={"product": product, "price": Decimal("249.00"), "billing_period": Plan.Period.WEEKLY})
-    monthly, yearly = Plan.objects.get(name="Suite Monthly"), Plan.objects.get(name="Suite Yearly")
-    term, admin = PaymentTerm.objects.get(name="Net 15"), User.objects.get(email="admin@demo")
-
-    with transaction.atomic():
-        pw = make_password(PASSWORD)  # hash once: 500 PBKDF2 hashes would take minutes
-        users = User.objects.bulk_create([
-            User(email=f"big-{i:04d}@{BIG_DOMAIN}", name=f"Big Customer {i}", role=Role.CUSTOMER, password=pw)
-            for i in range(1, n_customers + 1)
-        ])
-        CustomerProfile.objects.bulk_create([CustomerProfile(user=u, company_name=f"{u.name} Pvt Ltd") for u in users])
-
-        counter, _ = Counter.objects.select_for_update().get_or_create(name="subscription")
-        subs, qty = [], []
-        for i in range(n_subs):
-            status = _big_status(i)
-            plan = yearly if i % 10 == 0 else weekly if i % 10 == 1 else (monthly, team)[i % 2]
-            back = {"yearly": 400, "weekly": 21, "monthly": 75}[plan.billing_period] + rnd.randint(0, 25)
-            started = status in ("active", "paused", "closed")
-            subs.append(Subscription(
-                number=f"SUB-{counter.value + i + 1:06d}", customer=rnd.choice(users), plan=plan, status=status,
-                start_date=today - timedelta(days=back) if started else today + timedelta(days=7), payment_term=term,
-                expiry_date=today + timedelta(days=rnd.choice([3, 6, 40, 200, 365])) if i % 7 == 0 else None, created_by=admin,
-            ))
-            qty.append(1 + i % 5)
-        counter.value += n_subs
-        counter.save(update_fields=["value"])
-        subs = Subscription.objects.bulk_create(subs, batch_size=1000)
-        sub_lines = SubscriptionLine.objects.bulk_create([
-            SubscriptionLine(subscription=s, product=product, description=s.plan.name, quantity=qty[i],
-                             unit_price=s.plan.price, amount=s.plan.price * qty[i]) for i, s in enumerate(subs)
-        ], batch_size=1000)
-        SubscriptionLine.taxes.through.objects.bulk_create(
-            [SubscriptionLine.taxes.through(subscriptionline_id=ln.id, tax_id=gst.id) for ln in sub_lines], batch_size=2000)
-
-        counter, _ = Counter.objects.select_for_update().get_or_create(name="invoice")
-        invoices, attempts = [], []  # attempts[k]: (amount, date, status) payment rows for invoices[k]
-        for i, s in enumerate(subs):
-            if s.status not in ("active", "paused", "closed"):
-                continue
-            subtotal = s.plan.price * qty[i]
-            tax = (subtotal * gst.rate / 100).quantize(cent)
-            total, start, periods = subtotal + tax, s.start_date, []
-            while start <= today and len(periods) < 12:
-                nxt = next_period_start(start, s.plan.billing_period, s.start_date)
-                periods.append((start, nxt))
-                start = nxt
-            if s.status == "active":
-                s.next_invoice_date = start
-            for k, (p_start, nxt) in enumerate(periods):
-                last, roll = k == len(periods) - 1, (i + k) % 20
-                if last and s.status == "active" and roll < 2:
-                    status = "draft"
-                elif roll == 2:
-                    status = "cancelled"
-                elif (last and roll < 9) or (not last and roll == 3):
-                    status = "confirmed"  # the older ones end up overdue
-                else:
-                    status = "paid"
-                due, pays = p_start + timedelta(days=term.days), []
-                if status in ("confirmed", "paid") and (i + k) % 25 == 0:
-                    pays.append((total, min(today, p_start + timedelta(days=1)), "failed"))
-                if status == "paid":
-                    pays.append((total, min(today, due - timedelta(days=rnd.randint(0, 10))), "completed"))
-                elif status == "confirmed" and (i + k) % 3 == 0:
-                    pays.append(((total * Decimal("0.4")).quantize(cent), min(today, p_start + timedelta(days=3)), "completed"))
-                paid = sum((a for a, _, st in pays if st == "completed"), Decimal("0.00"))
-                if status != "draft":
-                    counter.value += 1
-                invoices.append(Invoice(
-                    number=None if status == "draft" else f"INV-{counter.value:06d}", subscription=s, customer=s.customer,
-                    status=status, invoice_date=p_start, due_date=due, period_start=p_start, period_end=nxt - timedelta(days=1),
-                    subtotal=subtotal, discount_total=Decimal("0.00"), tax_total=tax, total=total, amount_paid=paid,
-                    amount_due=total - paid, failed_attempts=sum(st == "failed" for _, _, st in pays) if status == "confirmed" else 0,
-                ))
-                attempts.append(pays)
-        counter.save(update_fields=["value"])
-        Subscription.objects.bulk_update([s for s in subs if s.status == "active"], ["next_invoice_date"], batch_size=1000)
-        invoices = Invoice.objects.bulk_create(invoices, batch_size=1000)
-        inv_lines = InvoiceLine.objects.bulk_create([
-            InvoiceLine(invoice=inv, product=product, description=inv.subscription.plan.name, quantity=1, unit_price=inv.subtotal,
-                        tax_rate_snapshot=gst.rate, line_subtotal=inv.subtotal, line_tax=inv.tax_total, line_total=inv.total)
-            for inv in invoices
-        ], batch_size=1000)
-        InvoiceLine.taxes.through.objects.bulk_create(
-            [InvoiceLine.taxes.through(invoiceline_id=ln.id, tax_id=gst.id) for ln in inv_lines], batch_size=2000)
-        payments = Payment.objects.bulk_create([
-            Payment(invoice=inv, amount=amount, method=rnd.choice(Payment.Method.values), payment_date=day, status=st,
-                    attempt_number=n + 1, recorded_by=admin, failure_reason="Card declined" if st == "failed" else "")
-            for inv, pays in zip(invoices, attempts) for n, (amount, day, st) in enumerate(pays)
-        ], batch_size=1000)
-    overdue = sum(inv.status == "confirmed" and inv.amount_due > 0 and inv.due_date < today for inv in invoices)
-    print(f"big  {len(users)} customers, {len(subs)} subscriptions, {len(invoices)} invoices ({overdue} overdue), {len(payments)} payments")
-    print(f"big  customer logins: big-0001@{BIG_DOMAIN} .. big-{n_customers:04d}@{BIG_DOMAIN} (same password)")
-
-
->>>>>>> other-repo/phase-8b
 if __name__ == "__main__":
     seed_users()
-    seed_catalog()
-    seed_subscription()
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-if __name__ == "__main__":
-    seed_users()
->>>>>>> other-repo/phase-5-discounts
-=======
->>>>>>> other-repo/phase-8a
-=======
-    if "--big" in sys.argv:
-        seed_big()
->>>>>>> other-repo/phase-8b
->>>>>>> recovery-old-main
+    seed_data()
     print(f"done. password for all demo users: {PASSWORD}")

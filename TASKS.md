@@ -10,7 +10,7 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 - [x] `/api/healthz` reports app DB + Odoo status; React landing page renders it
 - [x] Backend health test passes; frontend `npm run build` passes
 - [ ] `docker compose up` works — **blocked: Docker Desktop engine did not start on this laptop (D-030); compose file is untested**
-- [ ] Odoo initialised + smoke test (auth, `search_read`, create+delete partner) — see `## Cut`
+- [x] Odoo initialised + smoke test (auth, `search_read`, create+delete partner): passed 2026-10-31 on a native Odoo 18 (db `odoo_brightloop`), see docs/ODOO_INTEGRATION.md "Live verification" and D-045
 - [ ] First commit (repo is not yet a git repo)
 
 ## Phase 1 — Auth, roles, shell (0:30–1:15) [S1]
@@ -102,7 +102,11 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 - **Odoo local bring-up (Phase 0)** — Docker Desktop's engine did not come up on the dev laptop (error dialog on startup; needs someone to look at its window). Running with `ODOO_ENABLED=false`. Files ready: `docker-compose.yml`, `odoo/config/odoo.conf`, `Makefile odoo-init`, `backend/scripts/odoo_smoke.py`. Retry on a Docker-capable machine / in Phase 4.
 
 ## Bugs
-<<<<<<< HEAD
+- **Fixed in Phase 6 (found by running the suite on PostgreSQL; hidden by sqlite since Phase 3):** `services.transition()` locked the subscription with `select_for_update()` while joining the optional `template`, which PostgreSQL rejects (`FOR UPDATE cannot be applied to the nullable side of an outer join`). On the real database **every subscription status change returned HTTP 500** (34 tests failed on Postgres, all green on sqlite). PRs #3 and #4 contain the bug. Fixed by locking only the main row (`of=("self",)`) in the five joined locks (also stops billing's `skip_locked` from skipping subscriptions that merely share a plan). The full suite must be run against PostgreSQL before any release (`docs/TEST_PLAN.md`).
+- Phase 6 notes: `docs/PRD.md` only defines FR-PAY-01…06, so the status / retry / reversal / attempt-limit rules are tracked in D-041, not as FR-PAY-07…10; the attempt limit counts failed attempts since the last completed payment or admin reset (so several good part-payments never exhaust it); "pay" is offered only while attempts remain.
+- Fixed in Phase 4 (found by driving the UI): Django's stock console email backend raises on a Windows cp1252 console when the body contains `₹`, so every invoice email in dev logged `failed` (the confirm still succeeded, as designed). Replaced by `ConsoleEmailBackend` (D-039); the failed row was retried and went out.
+- Phase 4 known gaps: on a customer's print page the "← Back" link goes to the staff-only invoice page (403) until the portal exists in Phase 8; `Payment` side of an invoice (`amount_paid`, Paid status) is Phase 6; Odoo cancel mirror is cut; reminders / `run_notifications` after a run are Phase 7.
+- Fixed in Phase 3 (found by driving the UI): after a server error on a `lines` field (e.g. the plan's minimum quantity), react-hook-form kept the manually-set error and silently blocked every resubmit. `ResourceForm` and `SubscriptionForm` now `clearErrors()` before each submit. Same pass: `CrudPage` hardcoded admin-only writes, so staff could not manage templates; it now takes `writeRoles`.
 - Fixed in Phase 1: `AuthProvider` used `queryClient.clear()` on login, which detached the `["me"]` query and bounced users back to `/login`. Now drops every cache key except `me`.
 - Phase 1 notes: staff and customer navs differ only by the Home label until later-phase pages exist; password-reset email still sent directly, moves behind `notify()` in Phase 4; `WELCOME` notification not wired yet (Phase 7).
 - Phase 1 UI checks were done by driving the built SPA in the in-app browser; the pane could not draw screenshots, so clicks went through page JS rather than pixel clicks.
