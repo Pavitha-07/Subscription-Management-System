@@ -56,7 +56,11 @@ class StubDiscounts:
     def __init__(self, amount="780.00", reserve_ok=True):
         self.amount, self.reserve_ok, self.recorded = D(amount), reserve_ok, []
 
+<<<<<<< HEAD
     def pick_discounts(self, sub, product_lines, start, end):
+=======
+    def pick_discounts(self, sub, product_lines, start, end, as_of):
+>>>>>>> other-repo/phase-5-discounts
         return [engine.DiscountLine("10% launch", self.amount, product_lines[0]["tax_rate"], product_lines[0]["taxes"])]
 
     def reserve(self, picks):

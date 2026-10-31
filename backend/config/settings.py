@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.finance.payments",
     "apps.finance.notifications",
     "apps.finance.dashboard",
+<<<<<<< HEAD
     "apps.accounts",
     "apps.catalog",
     "apps.subscriptions",
@@ -48,6 +49,8 @@ INSTALLED_APPS = [
     "apps.notifications",
     "apps.dashboard",
 
+=======
+>>>>>>> other-repo/phase-5-discounts
 ]
 
 MIDDLEWARE = [
@@ -87,6 +90,8 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "accounts.User"
+AUTH_PASSWORD_VALIDATORS = [{"NAME": "apps.core.accounts.validators.PasswordRuleValidator"}]  # D-006
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # reset links live 24 h; single-use because the hash changes
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"

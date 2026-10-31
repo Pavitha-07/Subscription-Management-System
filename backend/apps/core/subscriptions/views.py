@@ -5,6 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.core.accounts.permissions import IsStaffOrAdmin
+<<<<<<< HEAD
+=======
+from apps.finance.discounts.serializers import AttachSerializer
+>>>>>>> other-repo/phase-5-discounts
 
 from . import services
 from .models import QuotationTemplate, Subscription
@@ -59,6 +63,24 @@ class SubscriptionViewSet(
         services.transition(self.get_object(), s.validated_data["to"], request.user)
         return self._detail(pk)
 
+<<<<<<< HEAD
+=======
+    @action(detail=True, methods=["post", "delete"])
+    def discount(self, request, pk=None):
+        """Attach (POST {discount}) or detach (DELETE) the subscription-scope discount; it applies from the next invoice."""
+        sub = self.get_object()
+        if sub.status == Subscription.Status.CLOSED:
+            raise services.TransitionError("guard_failed", "A closed subscription cannot be changed.")
+        if request.method == "DELETE":
+            sub.discount = None
+        else:
+            s = AttachSerializer(data=request.data)
+            s.is_valid(raise_exception=True)
+            sub.discount = s.validated_data["discount"]
+        sub.save(update_fields=["discount"])
+        return self._detail(pk)
+
+>>>>>>> other-repo/phase-5-discounts
     @action(detail=True, methods=["post"])
     def renew(self, request, pk=None):
         services.renew(self.get_object(), request.user)
