@@ -24,10 +24,15 @@ urlpatterns = [
 <<<<<<< HEAD
     path("api/", include("apps.core.accounts.urls")),
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/main
 =======
     path("api/", include("apps.core.catalog.urls")),
 >>>>>>> other-repo/phase-2a
+=======
+    path("api/", include("apps.core.catalog.urls")),
+    path("api/", include("apps.core.subscriptions.urls")),
+>>>>>>> teammate/phase-3b
     re_path(r"^(?!api/|admin/|static/).*$", spa),
 ]
