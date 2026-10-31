@@ -1,14 +1,20 @@
 import { Route, Routes } from "react-router-dom";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> other-repo/phase-3a
 import Layout from "./components/Layout";
 import RoleGuard from "./components/RoleGuard";
 import { insightRoutes } from "./features/insight/routes";
 import { opsRoutes } from "./features/ops/routes";
 import ForgotPassword from "./pages/ForgotPassword";
 import Forbidden from "./pages/Forbidden";
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-2a
+=======
+>>>>>>> other-repo/phase-3a
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -21,6 +27,7 @@ import Signup from "./pages/Signup";
 export default function AppRoutes() {
   return (
     <Routes>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <Route path="*" element={<Landing />} />
 =======
@@ -44,6 +51,8 @@ export default function AppRoutes() {
     <Routes>
 =======
 >>>>>>> other-repo/phase-2a
+=======
+>>>>>>> other-repo/phase-3a
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -57,9 +66,12 @@ export default function AppRoutes() {
         <Route path="*" element={<NotFound />} />
       </Route>
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/main
 =======
 >>>>>>> other-repo/phase-2a
+=======
+>>>>>>> other-repo/phase-3a
     </Routes>
   );
 }
