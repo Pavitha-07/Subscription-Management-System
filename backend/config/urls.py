@@ -17,23 +17,14 @@ def spa(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     re_path(r"^api/healthz/?$", health),
-<<<<<<< HEAD
-=======
-    path("api/", include("apps.core.catalog.urls")),
 
-    path("api/", include("apps.core.catalog.urls")),
-    path("api/", include("apps.core.subscriptions.urls")),
-    path("api/", include("apps.core.billing.urls")),
-=======
     path("api/", include("apps.core.accounts.urls")),
     path("api/", include("apps.core.catalog.urls")),
     path("api/", include("apps.core.subscriptions.urls")),
     path("api/", include("apps.core.billing.urls")),
     path("api/", include("apps.finance.discounts.urls")),
-<<<<<<< HEAD
->>>>>>> other-repo/phase-5-discounts
-=======
     path("api/", include("apps.finance.payments.urls")),
->>>>>>> 6a6a6ed (phase 6: payments (attempt status, retry, reversal, attempt limit, audit trail) + Postgres lock-scope fix)
+    path("api/", include("apps.finance.notifications.urls")),
+
     re_path(r"^(?!api/|admin/|static/).*$", spa),
 ]
