@@ -1,4 +1,13 @@
 import { Route, Routes } from "react-router-dom";
+<<<<<<< HEAD
+import Landing from "./pages/Landing";
+
+// Route map grows per phase; see docs/FRONTEND.md.
+export default function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="*" element={<Landing />} />
+=======
 import Layout from "./components/Layout";
 import RoleGuard from "./components/RoleGuard";
 import { insightRoutes } from "./features/insight/routes";
@@ -29,6 +38,7 @@ export default function AppRoutes() {
         <Route path="403" element={<Forbidden />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+>>>>>>> origin/main
     </Routes>
   );
 }
