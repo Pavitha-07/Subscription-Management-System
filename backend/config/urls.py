@@ -1,11 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.http import FileResponse, JsonResponse
-<<<<<<< HEAD
-from django.urls import include, path, re_path
-=======
 from django.urls import path, re_path
->>>>>>> origin/main
 
 from .health import health
 
@@ -21,18 +17,10 @@ def spa(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     re_path(r"^api/healthz/?$", health),
-<<<<<<< HEAD
-    path("api/", include("apps.core.accounts.urls")),
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/main
 =======
     path("api/", include("apps.core.catalog.urls")),
->>>>>>> other-repo/phase-2a
-=======
+
     path("api/", include("apps.core.catalog.urls")),
     path("api/", include("apps.core.subscriptions.urls")),
->>>>>>> teammate/phase-3b
     re_path(r"^(?!api/|admin/|static/).*$", spa),
 ]
