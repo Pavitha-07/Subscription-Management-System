@@ -23,7 +23,11 @@ urlpatterns = [
     re_path(r"^api/healthz/?$", health),
 <<<<<<< HEAD
     path("api/", include("apps.core.accounts.urls")),
+<<<<<<< HEAD
 =======
 >>>>>>> origin/main
+=======
+    path("api/", include("apps.core.catalog.urls")),
+>>>>>>> other-repo/phase-2a
     re_path(r"^(?!api/|admin/|static/).*$", spa),
 ]
