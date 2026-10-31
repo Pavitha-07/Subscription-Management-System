@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 """Extension point for the discounts app (Phase 5, person B). Until then billing runs with no discounts.
 
 Contract, called by `engine.build_invoice` inside the billing transaction, in this order:
@@ -29,6 +30,8 @@ def record(invoice, picks):
 =======
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
 """The engine's discount extension point; the implementation is `apps.finance.discounts.services` (Phase 5).
 
 Called by `engine.build_invoice` inside the billing transaction, in this order:
@@ -61,6 +64,9 @@ def record(invoice, picks):
     if picks:
         services.record(invoice, picks)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b

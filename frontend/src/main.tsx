@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./auth/AuthProvider";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { AuthProvider } from "./auth/AuthProvider";
 =======
@@ -13,6 +14,8 @@ import { AuthProvider } from "./auth/AuthProvider";
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
 import AppRoutes from "./routes";
 import "./index.css";
 
@@ -25,11 +28,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
       <AuthProvider>
         <BrowserRouter>
           <AppRoutes />
@@ -37,11 +43,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       </AuthProvider>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
     </QueryClientProvider>
   </React.StrictMode>,
 );

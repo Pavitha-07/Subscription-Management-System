@@ -50,9 +50,12 @@ ModelViewSets at `/products/`, `/taxes/`, `/payment-terms/`, `/plans/`: `GET` li
 `DELETE` of a row that is referenced elsewhere (e.g. a product used by a plan) → 409 `{"detail": "… is in use and cannot be deleted. Deactivate it instead."}`.
 Money fields are strings with 2 dp. `odoo_sync_status` ∈ `skipped|pending|synced|error` (read-only); Odoo failures never block a save.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
 
 | Resource | Fields (writable unless noted) | Filters |
 |---|---|---|
@@ -62,8 +65,11 @@ Money fields are strings with 2 dp. `odoo_sync_status` ∈ `skipped|pending|sync
 | **Plan** `/plans/` | `id, name, product, price, billing_period (daily\|weekly\|monthly\|yearly), min_quantity (≥1), available_from, available_to, auto_close, allow_early_close, allow_pause, allow_renew, is_active`; ro: `product_name` | `billing_period, is_active, product` |
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
 
 Product `variants` is a full replacement list on write: items with `id` are updated, items without are created, existing variants missing from the list are deleted.
 Errors: 400 `{variants:["Duplicate variant: Brand = Odoo."]}`, 400 `{available_to:["Available-to date must be on or after available-from."]}`, 400 `{min_quantity:["Ensure this value is greater than or equal to 1."]}`.
@@ -135,6 +141,7 @@ Detail adds: `lines:[{id, kind: product|discount, description, quantity, unit_pr
 | `GET /invoices/{id}/print/` | any role (scoped) | Detail plus `seller:{name}` and `customer_details:{name,email,company_name,phone,address}` for the print view |
 Each action returns the invoice detail.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ### Notifications skeleton (internal, full API arrives in Phase 7)
 `notify(event_code, user, obj, …)` writes a `NotificationLog` row per channel (UNIQUE `dedupe_key`) and sends after commit; failures are logged on the row and never reach the caller. Phase 4 wires `INVOICE_READY`. Spec: `docs/NOTIFICATIONS.md`.
@@ -216,6 +223,8 @@ Each action returns the invoice detail.
 
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
 ### Notifications
 See **Phase 7 — Notifications** below. `notify(event_code, user, obj, …)` writes a `NotificationLog` row per channel (UNIQUE `dedupe_key`) and sends after commit; failures land on the row and never reach the caller. Spec: `docs/NOTIFICATIONS.md`.
 
@@ -297,6 +306,43 @@ Log row: `{id, event, event_label, channel, provider, recipient_user, recipient_
 Skip reasons on a `skipped` row: `event_disabled`, `email_opt_out`, `no_opt_in`, `invalid_number`, `provider_disabled` (WhatsApp provider selected but not configured).
 Delivery: `sent` after the provider accepts; `failed` rows retry at +1 min, +5 min, +30 min (3 attempts) via `manage.py send_notifications`.
 
+<<<<<<< HEAD
 ## Phase 8 — Portal/Dashboard (planned)
 `GET /dashboard/summary/?from&to&customer&plan&status` → `{kpis, by_plan, by_month, overdue:{count,results}}`.
 Portal reuses `/subscriptions/` and `/invoices/` (scoped by role); no separate endpoints.
+=======
+## Phase 8 — Portal, dashboard, performance (D-044)
+
+### Dashboard
+`GET /dashboard/summary/` — **staff, admin** (customer 403, anonymous 403). All numbers come from aggregate queries; money is a 2-dp string.
+
+Query params (all optional; a bad value is 400 with field errors):
+
+| Param | Default | Applies to |
+|---|---|---|
+| `from`, `to` (YYYY-MM-DD, `from ≤ to`) | first day of the month 11 months ago … today | `revenue_collected`, `invoiced`, `by_month`, `by_plan.invoiced/collected` |
+| `customer` (user id) | — | everything |
+| `plan` (plan id) | — | everything |
+| `status` (subscription status) | — | everything (invoices/payments of subscriptions in that status) |
+| `page` | 1 | the `overdue` list (25 per page) |
+
+Response:
+```
+{ "filters": {from, to, customer, plan, status},
+  "kpis": { active_subscriptions, mrr, arr, revenue_collected, invoiced, outstanding, overdue_count, overdue_amount },
+  "by_plan":  [ {plan_id, plan_name, billing_period, active_subscriptions, mrr, invoiced, collected} ],   // every plan with any data
+  "by_month": [ {month: "YYYY-MM", invoiced, collected} ],                                               // every month in range, zeros included
+  "overdue":  { count, next, previous, results: [ {id, number, customer_email, subscription_number, plan_name, due_date, days_overdue, amount_due} ] } }
+```
+Definitions: **MRR** (D-017) = Σ pre-tax line amounts of *active* subscriptions normalised to a month (daily ×30, weekly ×52/12, monthly ×1, yearly ÷12), ARR = MRR × 12.
+**revenue_collected / collected** = Σ `completed` payments with `payment_date` in range (failed and reversed attempts never count).
+**invoiced** = Σ `total` of confirmed + paid invoices with `invoice_date` in range. **outstanding** = Σ `amount_due` of confirmed invoices (a balance as of today, not range-limited).
+**overdue** (D-013) = confirmed, `amount_due > 0`, `due_date < today`; the list is sorted by days overdue (oldest due date first), then id.
+
+### Portal (customer)
+No new endpoints: the portal reads `/subscriptions/`, `/subscriptions/{id}/`, `/invoices/`, `/invoices/{id}/`, `/invoices/{id}/print/` and `/payments/`, all scoped in the queryset.
+A customer gets **404** for another customer's subscription, invoice or payment id (detail, print, payments sub-list and every action), never a 403 that would confirm the id exists.
+
+### Performance gate
+`python scripts/seed_demo.py --big` (≈ 5 000 subscriptions, 15 000 invoices, 10 000 payments, `bulk_create`) then `python scripts/perf_check.py`: every list endpoint (page 1 and a deep page) and the dashboard, as admin and as a big customer; prints ms + query count; exits 1 if any call > 1.0 s.
+>>>>>>> other-repo/phase-8b

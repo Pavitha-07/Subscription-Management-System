@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 import Layout from "./components/Layout";
@@ -47,11 +48,27 @@ import ResetPassword from "./pages/ResetPassword";
 import Signup from "./pages/Signup";
 
 >>>>>>> other-repo/phase-8a
+=======
+import Layout from "./components/Layout";
+import RoleGuard from "./components/RoleGuard";
+import { insightRoutes } from "./features/insight/routes";
+import { opsRoutes } from "./features/ops/routes";
+import ForgotPassword from "./pages/ForgotPassword";
+import Forbidden from "./pages/Forbidden";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
+import ResetPassword from "./pages/ResetPassword";
+import Signup from "./pages/Signup";
+
+>>>>>>> other-repo/phase-8b
 // Shared shell + auth pages live here and in pages/. Feature screens are added in
 // features/ops/routes.tsx and features/insight/routes.tsx, not in this file (see docs/TEAM.md).
 export default function AppRoutes() {
   return (
     <Routes>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import Layout from "./components/Layout";
@@ -77,6 +94,8 @@ export default function AppRoutes() {
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -91,12 +110,15 @@ export default function AppRoutes() {
       </Route>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
 >>>>>>> other-repo/phase-5-discounts
 =======
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
     </Routes>
   );
 }

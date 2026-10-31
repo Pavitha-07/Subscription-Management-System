@@ -10,6 +10,7 @@ import MySubscriptions from "./MySubscriptions";
 import PaymentHistory from "./PaymentHistory";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // INSIGHT (person D): home, discounts, and customer portal screens.
 export const insightNav: NavItem[] = [
   { to: "/", label: "Home", roles: ["admin", "staff", "customer"], end: true },
@@ -18,6 +19,11 @@ export const insightNav: NavItem[] = [
 export const insightNav: NavItem[] = [
   { to: "/", label: "Home", roles: ["admin", "staff", "customer"], end: true }, // label is per-role in Layout
 >>>>>>> other-repo/phase-8a
+=======
+// INSIGHT (person D): home, discounts, customer portal, and later the finance dashboard.
+export const insightNav: NavItem[] = [
+  { to: "/", label: "Home", roles: ["admin", "staff", "customer"], end: true }, // label is per-role in Layout
+>>>>>>> other-repo/phase-8b
   { to: "/discounts", label: "Discounts", roles: ["admin", "staff"] },
   { to: "/my-subscriptions", label: "My subscriptions", roles: ["customer"] },
   { to: "/my-invoices", label: "My invoices", roles: ["customer"] },
@@ -27,6 +33,7 @@ export const insightNav: NavItem[] = [
 
 const customer = ["customer"] as const;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 // Called inside <Routes> in src/routes.tsx, so each element needs a key.
 export const insightRoutes = () => [
@@ -87,6 +94,8 @@ export const insightRoutes = () => [
   />,
 ];
 =======
+=======
+>>>>>>> other-repo/phase-8b
 // Called (not rendered) inside <Routes> in src/routes.tsx, so each element needs a key.
 export const insightRoutes = () => [
   <Route key="home" index element={<Home />} />,
@@ -97,4 +106,7 @@ export const insightRoutes = () => [
   <Route key="payments" path="payments" element={<RoleGuard allow={[...customer]}><PaymentHistory /></RoleGuard>} />,
   <Route key="my-notifs" path="my-notifications" element={<RoleGuard allow={[...customer]}><MyNotifications /></RoleGuard>} />,
 ];
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
