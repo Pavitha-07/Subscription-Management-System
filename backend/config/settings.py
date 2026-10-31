@@ -39,6 +39,15 @@ INSTALLED_APPS = [
     "apps.finance.payments",
     "apps.finance.notifications",
     "apps.finance.dashboard",
+    "apps.accounts",
+    "apps.catalog",
+    "apps.subscriptions",
+    "apps.billing",
+    "apps.discounts",
+    "apps.payments",
+    "apps.notifications",
+    "apps.dashboard",
+
 ]
 
 MIDDLEWARE = [
