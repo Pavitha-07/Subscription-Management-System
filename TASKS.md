@@ -98,6 +98,7 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 ## Bugs
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 
@@ -108,6 +109,10 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 - **Fixed in Phase 6 (found by running the suite on PostgreSQL; hidden by sqlite since Phase 3):** `services.transition()` locked the subscription with `select_for_update()` while joining the optional `template`, which PostgreSQL rejects (`FOR UPDATE cannot be applied to the nullable side of an outer join`). On the real database **every subscription status change returned HTTP 500** (34 tests failed on Postgres, all green on sqlite). PRs #3 and #4 contain the bug. Fixed by locking only the main row (`of=("self",)`) in the five joined locks (also stops billing's `skip_locked` from skipping subscriptions that merely share a plan). The full suite must be run against PostgreSQL before any release (`docs/TEST_PLAN.md`).
 - Phase 6 notes: `docs/PRD.md` only defines FR-PAY-01…06, so the status / retry / reversal / attempt-limit rules are tracked in D-041, not as FR-PAY-07…10; the attempt limit counts failed attempts since the last completed payment or admin reset (so several good part-payments never exhaust it); "pay" is offered only while attempts remain.
 >>>>>>> 6a6a6ed (phase 6: payments (attempt status, retry, reversal, attempt limit, audit trail) + Postgres lock-scope fix)
+=======
+- **Fixed in Phase 6 (found by running the suite on PostgreSQL; hidden by sqlite since Phase 3):** `services.transition()` locked the subscription with `select_for_update()` while joining the optional `template`, which PostgreSQL rejects (`FOR UPDATE cannot be applied to the nullable side of an outer join`). On the real database **every subscription status change returned HTTP 500** (34 tests failed on Postgres, all green on sqlite). PRs #3 and #4 contain the bug. Fixed by locking only the main row (`of=("self",)`) in the five joined locks (also stops billing's `skip_locked` from skipping subscriptions that merely share a plan). The full suite must be run against PostgreSQL before any release (`docs/TEST_PLAN.md`).
+- Phase 6 notes: `docs/PRD.md` only defines FR-PAY-01…06, so the status / retry / reversal / attempt-limit rules are tracked in D-041, not as FR-PAY-07…10; the attempt limit counts failed attempts since the last completed payment or admin reset (so several good part-payments never exhaust it); "pay" is offered only while attempts remain.
+>>>>>>> other-repo/phase-8a
 - Fixed in Phase 4 (found by driving the UI): Django's stock console email backend raises on a Windows cp1252 console when the body contains `₹`, so every invoice email in dev logged `failed` (the confirm still succeeded, as designed). Replaced by `ConsoleEmailBackend` (D-039); the failed row was retried and went out.
 - Phase 4 known gaps: on a customer's print page the "← Back" link goes to the staff-only invoice page (403) until the portal exists in Phase 8; `Payment` side of an invoice (`amount_paid`, Paid status) is Phase 6; Odoo cancel mirror is cut; reminders / `run_notifications` after a run are Phase 7.
 - Fixed in Phase 3 (found by driving the UI): after a server error on a `lines` field (e.g. the plan's minimum quantity), react-hook-form kept the manually-set error and silently blocked every resubmit. `ResourceForm` and `SubscriptionForm` now `clearErrors()` before each submit. Same pass: `CrudPage` hardcoded admin-only writes, so staff could not manage templates; it now takes `writeRoles`.

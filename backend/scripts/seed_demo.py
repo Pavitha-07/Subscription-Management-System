@@ -14,6 +14,9 @@ import django  # noqa: E402
 django.setup()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> other-repo/phase-8a
 from datetime import date  # noqa: E402
 from decimal import Decimal  # noqa: E402
 
@@ -21,9 +24,12 @@ from apps.core.accounts.models import CustomerProfile, Role, User  # noqa: E402
 from apps.core.catalog.models import PaymentTerm, Plan, Product, Tax  # noqa: E402
 from apps.core.subscriptions import services  # noqa: E402
 from apps.core.subscriptions.models import Subscription, SubscriptionLine  # noqa: E402
+<<<<<<< HEAD
 =======
 from apps.core.accounts.models import CustomerProfile, Role, User  # noqa: E402
 >>>>>>> other-repo/phase-5-discounts
+=======
+>>>>>>> other-repo/phase-8a
 
 PASSWORD = "Demo@12345"
 # Created through the ORM, so emails like admin@demo skip EmailField validation (D-031).
@@ -47,6 +53,9 @@ def seed_users():
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> other-repo/phase-8a
 def seed_catalog():
     gst, _ = Tax.objects.get_or_create(name="GST 18%", defaults={"rate": Decimal("18.00")})
     for name, days in [("Immediate", 0), ("Net 15", 15), ("Net 30", 30)]:
@@ -63,7 +72,10 @@ def seed_catalog():
     print("catalog  1 tax, 3 terms, 1 product, 2 plans")
 
 
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> other-repo/phase-8a
 def seed_subscription():
     """One active subscription for the demo customer, walked through the real state machine."""
     admin, customer = User.objects.get(email="admin@demo"), User.objects.get(email="customer@demo")
@@ -88,9 +100,12 @@ if __name__ == "__main__":
     seed_users()
     seed_catalog()
     seed_subscription()
+<<<<<<< HEAD
 
 =======
 if __name__ == "__main__":
     seed_users()
 >>>>>>> other-repo/phase-5-discounts
+=======
+>>>>>>> other-repo/phase-8a
     print(f"done. password for all demo users: {PASSWORD}")

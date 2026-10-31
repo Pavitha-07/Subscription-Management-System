@@ -49,7 +49,10 @@ ModelViewSets at `/products/`, `/taxes/`, `/payment-terms/`, `/plans/`: `GET` li
 **Read: staff + admin. Write: admin only.** Customers and anonymous → 403. All lists accept `?search=`, `?ordering=`, and `?page_size=` (max 200, for dropdowns; default 25).
 `DELETE` of a row that is referenced elsewhere (e.g. a product used by a plan) → 409 `{"detail": "… is in use and cannot be deleted. Deactivate it instead."}`.
 Money fields are strings with 2 dp. `odoo_sync_status` ∈ `skipped|pending|synced|error` (read-only); Odoo failures never block a save.
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-5-discounts
+=======
+>>>>>>> other-repo/phase-8a
 
 | Resource | Fields (writable unless noted) | Filters |
 |---|---|---|
@@ -58,6 +61,9 @@ Money fields are strings with 2 dp. `odoo_sync_status` ∈ `skipped|pending|sync
 | **Product** `/products/` | `id, name, type (service\|software\|addon\|physical), sales_price, cost_price, notes, is_active, taxes:[tax ids], variants:[{id?, attribute, value, extra_price}]`; ro: `odoo_product_id, odoo_sync_status, odoo_error`; variant ro: `effective_unit_price` (= product `sales_price` + `extra_price`) | `type, is_active` |
 | **Plan** `/plans/` | `id, name, product, price, billing_period (daily\|weekly\|monthly\|yearly), min_quantity (≥1), available_from, available_to, auto_close, allow_early_close, allow_pause, allow_renew, is_active`; ro: `product_name` | `billing_period, is_active, product` |
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> other-repo/phase-8a
 
 Product `variants` is a full replacement list on write: items with `id` are updated, items without are created, existing variants missing from the list are deleted.
 Errors: 400 `{variants:["Duplicate variant: Brand = Odoo."]}`, 400 `{available_to:["Available-to date must be on or after available-from."]}`, 400 `{min_quantity:["Ensure this value is greater than or equal to 1."]}`.
@@ -129,6 +135,7 @@ Detail adds: `lines:[{id, kind: product|discount, description, quantity, unit_pr
 | `GET /invoices/{id}/print/` | any role (scoped) | Detail plus `seller:{name}` and `customer_details:{name,email,company_name,phone,address}` for the print view |
 Each action returns the invoice detail.
 
+<<<<<<< HEAD
 ### Notifications skeleton (internal, full API arrives in Phase 7)
 `notify(event_code, user, obj, …)` writes a `NotificationLog` row per channel (UNIQUE `dedupe_key`) and sends after commit; failures are logged on the row and never reach the caller. Phase 4 wires `INVOICE_READY`. Spec: `docs/NOTIFICATIONS.md`.
 
@@ -207,6 +214,8 @@ Detail adds: `lines:[{id, kind: product|discount, description, quantity, unit_pr
 | `GET /invoices/{id}/print/` | any role (scoped) | Detail plus `seller:{name}` and `customer_details:{name,email,company_name,phone,address}` for the print view |
 Each action returns the invoice detail.
 
+=======
+>>>>>>> other-repo/phase-8a
 ### Notifications
 See **Phase 7 — Notifications** below. `notify(event_code, user, obj, …)` writes a `NotificationLog` row per channel (UNIQUE `dedupe_key`) and sends after commit; failures land on the row and never reach the caller. Spec: `docs/NOTIFICATIONS.md`.
 
