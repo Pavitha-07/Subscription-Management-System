@@ -13,6 +13,7 @@ import django  # noqa: E402
 
 django.setup()
 
+<<<<<<< HEAD
 from datetime import date  # noqa: E402
 from decimal import Decimal  # noqa: E402
 
@@ -20,6 +21,9 @@ from apps.core.accounts.models import CustomerProfile, Role, User  # noqa: E402
 from apps.core.catalog.models import PaymentTerm, Plan, Product, Tax  # noqa: E402
 from apps.core.subscriptions import services  # noqa: E402
 from apps.core.subscriptions.models import Subscription, SubscriptionLine  # noqa: E402
+=======
+from apps.core.accounts.models import CustomerProfile, Role, User  # noqa: E402
+>>>>>>> other-repo/phase-5-discounts
 
 PASSWORD = "Demo@12345"
 # Created through the ORM, so emails like admin@demo skip EmailField validation (D-031).
@@ -42,6 +46,7 @@ def seed_users():
         print(f"user  {email:<16} {role}")
 
 
+<<<<<<< HEAD
 def seed_catalog():
     gst, _ = Tax.objects.get_or_create(name="GST 18%", defaults={"rate": Decimal("18.00")})
     for name, days in [("Immediate", 0), ("Net 15", 15), ("Net 30", 30)]:
@@ -84,4 +89,8 @@ if __name__ == "__main__":
     seed_catalog()
     seed_subscription()
 
+=======
+if __name__ == "__main__":
+    seed_users()
+>>>>>>> other-repo/phase-5-discounts
     print(f"done. password for all demo users: {PASSWORD}")

@@ -123,12 +123,22 @@ class SubscriptionSerializer(SubscriptionListSerializer):
     lines = LineSerializer(many=True, required=False)
     status_log = StatusLogSerializer(many=True, read_only=True)
     actions = serializers.SerializerMethodField()
+<<<<<<< HEAD
+=======
+    discount_name = serializers.CharField(source="discount.name", default="", read_only=True)
+>>>>>>> other-repo/phase-5-discounts
 
     class Meta(SubscriptionListSerializer.Meta):
         fields = SubscriptionListSerializer.Meta.fields + [
             "template", "quotation_valid_until", "notes", "created_by", "lines", "status_log", "actions",
+<<<<<<< HEAD
         ]
         read_only_fields = SubscriptionListSerializer.Meta.read_only_fields + ["template", "quotation_valid_until", "created_by"]
+=======
+            "discount", "discount_name",
+        ]
+        read_only_fields = SubscriptionListSerializer.Meta.read_only_fields + ["template", "quotation_valid_until", "created_by", "discount"]
+>>>>>>> other-repo/phase-5-discounts
 
     def get_lines_total(self, sub):
         return str(services.q2(sum((l.amount for l in sub.lines.all()), services.ZERO)))

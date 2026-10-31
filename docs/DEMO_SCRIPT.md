@@ -6,6 +6,7 @@ _Data below is the intended seed; adjust if `seed_demo.py` differs and update th
 
 ## S1 — Sign-up & roles (3 min)
 <<<<<<< HEAD
+<<<<<<< HEAD
 1. `/signup`: email `new@demo.com`, password `weakpass` → rejected (needs upper, lower, special, > 8). Use `Strong@Pass1` → created as customer; WhatsApp opt-in ticked.
 2. Sign up again with `NEW@demo.com` → "An account with this email already exists." (case-insensitive).
 3. Forgot password → open console/email → link → set `Another@Pass2` → log in.
@@ -16,6 +17,12 @@ _Data below is the intended seed; adjust if `seed_demo.py` differs and update th
 3. Forgot password → open console/email → link → set `Another@Pass2` → log in.
 4. Log in as admin → **Staff** page → create `ops@demo` (staff). Log in as staff → no Staff menu; `/staff` → 403 page.
 >>>>>>> origin/main
+=======
+1. `/signup`: email `new@demo.com`, password `weakpass` → rejected (needs upper, lower, special, > 8). Use `Strong@Pass1` → created as customer; WhatsApp opt-in ticked.
+2. Sign up again with `NEW@demo.com` → "An account with this email already exists." (case-insensitive).
+3. Forgot password → open console/email → link → set `Another@Pass2` → log in.
+4. Log in as admin → **Staff** page → create `ops@demo.com` (staff). Log in as staff → no Staff menu; `/staff` → 403 page.
+>>>>>>> other-repo/phase-5-discounts
 5. Customer sees only "My subscriptions / My invoices". **Expected:** different nav per role.
 
 ## S2 — New plan (3 min, admin)
