@@ -12,7 +12,8 @@ export default function GoogleButton({ label, run }: { label: string; run: () =>
       await run();
     } catch (e) {
       const d = e instanceof ApiError && e.body && typeof e.body === "object" ? (e.body as Record<string, unknown>) : null;
-      setErr(String(d?.detail ?? Object.values(d ?? {}).flat()[0] ?? "Sign-in failed. Please try again."));
+      const http = e instanceof ApiError ? ` (server answered ${e.status})` : "";
+      setErr(String(d?.detail ?? Object.values(d ?? {}).flat()[0] ?? `Sign-in failed${http}. Please try again.`));
     } finally {
       setBusy(false);
     }
