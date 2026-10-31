@@ -1,0 +1,53 @@
+# API contract
+
+Base `/api`. JSON. Session cookie auth; unsafe methods need `X-CSRFToken` (cookie `csrftoken`, set by `GET /api/auth/csrf/`).
+Money = **string** with 2 dp (`"8283.60"`). Dates ISO-8601 (`2026-10-31`). Lists are paginated:
+`{"count": n, "next": url|null, "previous": url|null, "results": [...]}` (25/page, `?page=`). Errors: `{"detail": "..."}` or `{"field": ["msg"]}`.
+Status codes: 400 validation · 401/403 not allowed · 404 not found / not yours · 409 illegal state transition.
+
+Each phase appends its endpoints here **before** implementation (rule 2).
+
+## Phase 0 — implemented
+### `GET /api/healthz`  · public
+Response `200` (or `503` when the app DB is down):
+```json
+{"status": "ok", "app_db": "ok", "odoo": {"status": "ok", "version": "18.0", "uid": 2}}
+```
+`odoo.status` ∈ `ok | disabled | down` (`down` adds `error`). `status` is `degraded` when anything is down.
+
+## Phase 1 — Auth, roles (planned)
+| Method | Path | Role | Request → Response |
+|---|---|---|---|
+| GET | `/auth/csrf/` | any | sets cookie → `{"detail":"ok"}` |
+| POST | `/auth/signup/` | anon | `{email, password, name, whatsapp_number?, whatsapp_opt_in?}` → 201 user (role=customer) |
+| POST | `/auth/login/` | anon | `{email, password}` → user · 400 on bad creds |
+| POST | `/auth/logout/` | auth | → 204 |
+| GET | `/auth/me/` | auth | → `{id,email,name,role,profile{...}}` · 403 if anonymous |
+| PATCH | `/auth/me/` | auth | `{name?, profile{phone?, address?, whatsapp_number?, whatsapp_opt_in?, email_notifications?}}` |
+| POST | `/auth/password-reset/request/` | anon | `{email}` → 200 always (no account enumeration); emails link |
+| POST | `/auth/password-reset/confirm/` | anon | `{uid, token, new_password}` → 200 · 400 invalid/expired |
+| GET/POST | `/staff/` | admin | list/create staff `{email,name,password,role: staff|admin}` |
+
+## Phase 2 — Catalog (planned)
+`/products/` (+ nested `variants`), `/taxes/`, `/payment-terms/`, `/plans/` — ModelViewSets. Read: staff+admin. Write: admin.
+Plan JSON: `{id,name,product,price,billing_period,min_quantity,available_from,available_to,auto_close,allow_early_close,allow_pause,allow_renew,is_active}`.
+Product JSON adds `variants:[{attribute,value,extra_price}]`, `taxes:[ids]`, `odoo_sync_status`.
+
+## Phase 3 — Subscriptions (planned)
+`/quotation-templates/`, `/subscriptions/` (filters `status, customer, plan, search=number`),
+`POST /subscriptions/{id}/transition/ {to}` → subscription · 409 if illegal, `POST /subscriptions/from-template/ {template, customer, start_date}` → prefilled draft.
+
+## Phase 4 — Billing (planned)
+`POST /billing/run/ {as_of?}` → `{run_id, created, skipped, errors}` · `GET /billing/runs/` ·
+`GET /invoices/` (filters `status, customer, overdue=true, subscription`), `GET /invoices/{id}/`,
+`POST /invoices/{id}/confirm|cancel|send/`, `GET /invoices/{id}/print/`.
+
+## Phase 5 — Discounts · Phase 6 — Payments (planned)
+`/discounts/` (admin write), `POST|DELETE /subscriptions/{id}/discount/`, `GET /discounts/{id}/redemptions/`.
+`POST /invoices/{id}/payments/ {amount, method, payment_date, note?}` → payment (400 overpay / bad invoice state), `GET /payments/` (filters `invoice, method, date range`).
+
+## Phase 7 — Notifications · Phase 8 — Portal/Dashboard (planned)
+`GET /notifications/logs/`, `POST /notifications/logs/{id}/retry/`, `GET|PATCH /notifications/events/`, `POST /notifications/test-send/`,
+`GET|PATCH /me/notification-settings/`, `POST /notifications/run-reminders/`.
+`GET /dashboard/summary/?from&to&customer&plan&status` → `{kpis, by_plan, by_month, overdue:{count,results}}`.
+Portal reuses `/subscriptions/` and `/invoices/` (scoped by role); no separate endpoints.

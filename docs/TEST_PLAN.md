@@ -1,0 +1,37 @@
+# Test plan
+
+Backend: `pytest-django` (`cd backend && python -m pytest -q`). Billing concurrency and `skip_locked` tests need **Postgres** (D-029).
+Frontend: no unit tests (rule 12) — manual checklist below, run in Phase 9.
+
+## Backend tests by phase
+| Phase | Tests |
+|---|---|
+| 0 | `test_health`: `/api/healthz` with Odoo disabled → `ok` |
+| 1 | Password table: valid + 6 invalid (no upper, no lower, no special, 8 chars exactly, empty, too common) · duplicate email in another case · reset token valid/expired/reused · staff creation 403 for staff & customer · role × endpoint matrix |
+| 2 | Variant +560 → `effective_unit_price` · plan date validation (`from ≤ to`, `min_quantity ≥ 1`) · write permissions · Odoo mocked: success → `synced`, failure → `pending`, disabled → `skipped` |
+| 3 | Legal and illegal transitions · min-quantity · concurrent numbering (unique `SUB-…`) · template prefill |
+| 4 | **(1)** run twice → no new invoices · **(2)** concurrent runs → no duplicates · **(3)** catch-up creates each missed period · **(4)** nothing beyond expiry; auto-close only with flag · **(5)** paused/draft/closed skipped · **(6)** worked example = 8283.60 · **(7)** one failing sub doesn't stop the run · **(8)** Odoo down → local invoice `pending` |
+| 5 | percent/fixed · min qty / min purchase unmet · before start / after end · limit 2 with 3 eligible → exactly 2 · scope product vs subscription · race-safe counter · staff create 403 |
+| 6 | partial then full → Paid exactly at the sum · overpayment rejected · draft/cancelled rejected · overdue rule (D-013) · denormalized totals equal recomputation |
+| 7 | The 8 tests in `NOTIFICATIONS.md` §9 |
+| 8 | Customer A → B's subscription/invoice/payment → 404 · dashboard numbers equal hand-computed fixture |
+
+## Performance method (Phase 8)
+`python scripts/seed_demo.py --big` → ~5k subs, ~15k invoices, ~10k payments (`bulk_create`).
+`python scripts/perf_check.py` logs in as admin, calls every list endpoint (page 1 and a deep page) and `/dashboard/summary/`,
+prints `endpoint · ms · query count`, **exits non-zero if any call > 1.0 s**. Fix with indexes, `select_related`, aggregates, denormalized `amount_due`.
+Browser check: Network tab, dashboard < 2 s on a cold load.
+
+## Manual QA checklist (Phase 9)
+- [ ] Fresh DB → `seed` → three demo logins work; each role sees different navigation
+- [ ] Signup rejects weak passwords & duplicate email (any case); reset link appears in console and works once
+- [ ] Customer cannot open `/staff`, `/dashboard`, other customers' ids (typed in URL) → 403/404 page
+- [ ] Catalog: product with Brand variant (+560), monthly plan; non-admin has no edit controls and API refuses
+- [ ] Template → subscription → Quotation → Confirmed → Active; illegal buttons hidden; direct API call returns 409
+- [ ] Run billing → invoices; run again → 0 new; confirm → number assigned; print view saves as PDF
+- [ ] Discount 10 %, limit 2: appears on next two invoices, not the third; negative line visible
+- [ ] Partial payment shows balance; final payment → Paid; overdue chip highlights days overdue
+- [ ] Dashboard KPIs match Payments/Invoices pages; filters work; loads < 2 s on big seed
+- [ ] Notification log shows sent rows; reruns don't duplicate; WhatsApp on phone (Twilio sandbox, joined)
+- [ ] Odoo (if enabled): confirmed invoice visible in Odoo UI with correct lines/tax/total
+- [ ] Mobile width: nav usable, tables scroll; tunnel URL works on mobile data
