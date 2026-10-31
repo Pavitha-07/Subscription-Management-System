@@ -81,10 +81,16 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 - [ ] Acceptance with `WHATSAPP_PROVIDER=twilio` on a joined phone: **not run** (no Twilio credentials here); the adapter is verified only against a mocked HTTP layer
 
 ## Phase 8 — Portal, dashboard, performance (5:05–5:35) [S1/S7]
-- [ ] Portal (my subscriptions / invoices, read-only)
-- [ ] `GET /dashboard/summary/` + React dashboard
-- [ ] `seed_demo.py --big`, `perf_check.py` green (< 1.0 s per call)
-- [ ] Tests: cross-customer 404s; dashboard = hand-computed values
+- [x] API-first: `docs/API.md` Phase 8 written before code; D-044 logged
+- [x] Portal (`features/insight`, read-only): My subscriptions (+ new detail page with lines and that subscription's invoices), My invoices → print view, My payments, My notifications. Print view "← Back" now goes to `/my-invoices` for customers (was the staff page → 403, Phase 4 gap)
+- [x] **Fixed a routing bug:** the customer Payments route and the staff `/payments` route shared one path, so React Router matched the customer route first and **staff/admin got the 403 page on Payments** in the merged Phase 7 branches. Customer pages now live under `/my-*` (`/my-payments`)
+- [x] `GET /dashboard/summary/` (`apps/finance/dashboard`): KPIs (active, MRR, ARR, revenue collected, invoiced, outstanding, overdue count/amount), by plan, by month (zeros included), paginated overdue list sorted by days overdue; filters from/to, customer, plan, subscription status; 15 queries whatever the data size
+- [x] React dashboard (`features/insight/Dashboard.tsx`): filter bar (dates, customer type-ahead, plan, status, reset), KPI cards with drill-down links (`/subscriptions?status=active`, `/invoices?status=overdue`), by-plan / by-month tables with CSS bars (Recharts skipped), overdue table with paging; subscription list now reads `?status=&plan=` from the URL
+- [x] `seed_demo.py --big`: 500 customers, 5 000 subscriptions, ~16 400 invoices (~1 360 overdue), ~14 300 payments (completed / partial / failed) in ~20 s via `bulk_create`; idempotent (second run skips)
+- [x] `perf_check.py` **green on PostgreSQL 16 with the big seed: 34 calls (every list page 1 + last page, filtered lists, details, dashboard ×3, customer portal), slowest 333 ms (dashboard filtered by status), budget 1 000 ms**. No index or N+1 fix was needed; `/notifications/events/` runs a fixed 29 queries (lazy catalog creation), not per row
+- [x] Tests: `tests/test_portal_isolation.py` (11) and `tests/test_dashboard.py` (14). Full suite: **PostgreSQL 396 passed / 0 skipped; sqlite 388 passed / 8 skipped** (the PostgreSQL-only concurrency tests). Frontend `npm run build` passes
+- [x] Acceptance, in the browser on the big seed (Postgres): dashboard summary request 92–148 ms, plan and customer filters and overdue paging work, KPI cards drill down to filtered lists; admin `/payments` shows the staff list (14 337 rows); customer `big-0001@big.seed` sees 10 own subscriptions, the detail page, print view with Back → My invoices, 32 own payments; `/dashboard` → 403 page; `/my-subscriptions/2` (someone else's) → "not found", API 404
+- [ ] Customer self-service pause/close/renew in the portal: not built (KICKOFF §9 cut item 3)
 
 ## Phase 9 — Hardening, demo, deploy (5:35–6:00)
 - [ ] README + DEMO_SCRIPT final; TASKS honest
@@ -96,6 +102,7 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 - **Odoo local bring-up (Phase 0)** — Docker Desktop's engine did not come up on the dev laptop (error dialog on startup; needs someone to look at its window). Running with `ODOO_ENABLED=false`. Files ready: `docker-compose.yml`, `odoo/config/odoo.conf`, `Makefile odoo-init`, `backend/scripts/odoo_smoke.py`. Retry on a Docker-capable machine / in Phase 4.
 
 ## Bugs
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -113,6 +120,10 @@ Tick as acceptance checks pass. Cut-line order: KICKOFF §9.
 - **Fixed in Phase 6 (found by running the suite on PostgreSQL; hidden by sqlite since Phase 3):** `services.transition()` locked the subscription with `select_for_update()` while joining the optional `template`, which PostgreSQL rejects (`FOR UPDATE cannot be applied to the nullable side of an outer join`). On the real database **every subscription status change returned HTTP 500** (34 tests failed on Postgres, all green on sqlite). PRs #3 and #4 contain the bug. Fixed by locking only the main row (`of=("self",)`) in the five joined locks (also stops billing's `skip_locked` from skipping subscriptions that merely share a plan). The full suite must be run against PostgreSQL before any release (`docs/TEST_PLAN.md`).
 - Phase 6 notes: `docs/PRD.md` only defines FR-PAY-01…06, so the status / retry / reversal / attempt-limit rules are tracked in D-041, not as FR-PAY-07…10; the attempt limit counts failed attempts since the last completed payment or admin reset (so several good part-payments never exhaust it); "pay" is offered only while attempts remain.
 >>>>>>> other-repo/phase-8a
+=======
+- **Fixed in Phase 6 (found by running the suite on PostgreSQL; hidden by sqlite since Phase 3):** `services.transition()` locked the subscription with `select_for_update()` while joining the optional `template`, which PostgreSQL rejects (`FOR UPDATE cannot be applied to the nullable side of an outer join`). On the real database **every subscription status change returned HTTP 500** (34 tests failed on Postgres, all green on sqlite). PRs #3 and #4 contain the bug. Fixed by locking only the main row (`of=("self",)`) in the five joined locks (also stops billing's `skip_locked` from skipping subscriptions that merely share a plan). The full suite must be run against PostgreSQL before any release (`docs/TEST_PLAN.md`).
+- Phase 6 notes: `docs/PRD.md` only defines FR-PAY-01…06, so the status / retry / reversal / attempt-limit rules are tracked in D-041, not as FR-PAY-07…10; the attempt limit counts failed attempts since the last completed payment or admin reset (so several good part-payments never exhaust it); "pay" is offered only while attempts remain.
+>>>>>>> other-repo/phase-8b
 - Fixed in Phase 4 (found by driving the UI): Django's stock console email backend raises on a Windows cp1252 console when the body contains `₹`, so every invoice email in dev logged `failed` (the confirm still succeeded, as designed). Replaced by `ConsoleEmailBackend` (D-039); the failed row was retried and went out.
 - Phase 4 known gaps: on a customer's print page the "← Back" link goes to the staff-only invoice page (403) until the portal exists in Phase 8; `Payment` side of an invoice (`amount_paid`, Paid status) is Phase 6; Odoo cancel mirror is cut; reminders / `run_notifications` after a run are Phase 7.
 - Fixed in Phase 3 (found by driving the UI): after a server error on a `lines` field (e.g. the plan's minimum quantity), react-hook-form kept the manually-set error and silently blocked every resubmit. `ResourceForm` and `SubscriptionForm` now `clearErrors()` before each submit. Same pass: `CrudPage` hardcoded admin-only writes, so staff could not manage templates; it now takes `writeRoles`.

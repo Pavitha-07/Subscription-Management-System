@@ -4,6 +4,7 @@ import { useAuth } from "../../auth/AuthProvider";
 const BLURB = {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   admin: "Manage staff accounts and the product catalog (products, plans, taxes, payment terms). Discounts, billing and the finance dashboard arrive in the next phases.",
   staff: "Browse the product catalog now; subscriptions, billing and payments will appear here as they are built. Staff accounts are created by an admin.",
 =======
@@ -14,6 +15,10 @@ const BLURB = {
   admin: "Manage staff accounts and the product catalog (products, plans, taxes, payment terms). Discounts, billing and the finance dashboard arrive in the next phases.",
   staff: "Browse the product catalog now; subscriptions, billing and payments will appear here as they are built. Staff accounts are created by an admin.",
 >>>>>>> other-repo/phase-8a
+=======
+  admin: "Manage staff accounts and the product catalog (products, plans, taxes, payment terms). Discounts, billing and the finance dashboard arrive in the next phases.",
+  staff: "Browse the product catalog now; subscriptions, billing and payments will appear here as they are built. Staff accounts are created by an admin.",
+>>>>>>> other-repo/phase-8b
   customer: "Your subscriptions and invoices will appear here. You only ever see your own data.",
 } as const;
 
@@ -27,12 +32,16 @@ export default function Home() {
       <p className="flex gap-4 text-sm">
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         {user.role !== "customer" && <Link className="text-indigo-700" to="/catalog">Catalog</Link>}
 =======
 >>>>>>> other-repo/phase-5-discounts
 =======
         {user.role !== "customer" && <Link className="text-indigo-700" to="/catalog">Catalog</Link>}
 >>>>>>> other-repo/phase-8a
+=======
+        {user.role !== "customer" && <Link className="text-indigo-700" to="/catalog">Catalog</Link>}
+>>>>>>> other-repo/phase-8b
         {user.role === "admin" && <Link className="text-indigo-700" to="/staff">Manage staff</Link>}
         <Link className="text-indigo-700" to="/profile">Edit profile</Link>
       </p>

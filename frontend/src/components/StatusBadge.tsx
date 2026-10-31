@@ -11,6 +11,7 @@ const COLORS: Record<string, string> = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
   // payment attempts
@@ -20,11 +21,16 @@ const COLORS: Record<string, string> = {
   scheduled: "bg-blue-100 text-blue-800", expired: "bg-slate-300 text-slate-700", exhausted: "bg-amber-100 text-amber-800", inactive: "bg-slate-200 text-slate-700",
 >>>>>>> other-repo/phase-5-discounts
 =======
+=======
+>>>>>>> other-repo/phase-8b
   // payment attempts
   completed: "bg-green-100 text-green-800", reversed: "bg-slate-300 text-slate-700",
   // discount rule state
   scheduled: "bg-blue-100 text-blue-800", expired: "bg-slate-300 text-slate-700", exhausted: "bg-amber-100 text-amber-800", inactive: "bg-slate-200 text-slate-700",
+<<<<<<< HEAD
 >>>>>>> other-repo/phase-8a
+=======
+>>>>>>> other-repo/phase-8b
   // roles
   admin: "bg-purple-100 text-purple-800", staff: "bg-blue-100 text-blue-800", customer: "bg-slate-200 text-slate-800",
 };
