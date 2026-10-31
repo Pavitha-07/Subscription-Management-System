@@ -1,0 +1,41 @@
+# Decision log
+
+Append new rows; never rewrite old ones (supersede instead). Format: ID · decision · why · date.
+
+| ID | Decision |
+|---|---|
+| D-001 | Plan.price = recurring price per unit per period of the plan's primary product. A new subscription from a plan auto-adds a first line for that product at `plan.price + variant.extra_price`. Add-on lines use `product.sales_price + variant.extra_price`. |
+| D-002 | Backend: Python 3.12, Django 5, DRF, django-filter, PostgreSQL 15, pytest-django. Frontend: React 18 + TypeScript + Vite, React Router, TanStack Query, Tailwind, react-hook-form. Recharts only if time allows. |
+| D-003 | Odoo Community 18.0 in Docker, external API (XML-RPC) through one wrapper. If the hackathon names another version, change the image tag and re-verify the wrapper. |
+| D-004 | Django DB is the source of truth for subscriptions, plans, discounts, payments, dashboard. Odoo is the accounting ledger and receives mirrored partners, products, taxes, invoices (and payments if time allows). |
+| D-005 | Auth: Django session cookie + CSRF, same origin. Production: Django serves the built React app (WhiteNoise + catch-all `index.html`) so there is one container and one tunnel URL. Dev: Vite proxies `/api` to Django. User model has `role` (`admin/staff/customer`). |
+| D-006 | Password rule: length ≥ 9 with uppercase, lowercase, special char (validator on signup, reset, staff creation). Email unique case-insensitively. Public signup creates only `customer`. |
+| D-007 | Reset email links to `SITE_URL/reset-password/<uid>/<token>` (React route) which calls the API; email backend is console by default, SMTP via env. |
+| D-008 | Billing via `run_billing` management command and a "Run billing" button (admin/staff). No Celery. |
+| D-009 | Billing creates Draft invoices. Confirm posts to Odoo. Paid when payments ≥ total. |
+| D-010 | Discount stacking: ≤ 1 discount per line (largest saving wins) plus ≤ 1 subscription-level discount per invoice; usage count +1 per invoice application; shown as its own negative line. |
+| D-011 | Product-scoped rules auto-apply to matching lines meeting conditions. Subscription-scoped rules apply only when attached to the subscription (staff or admin attach; only admin creates rules). |
+| D-012 | Tax: admin-managed `Tax` rows attached to products; local calc authoritative; lines go to Odoo with `tax_ids`; Odoo total stored; mismatch > 0.01 logged. |
+| D-013 | Overdue = Confirmed, `amount_due > 0`, `due_date < today`. Due date = invoice date + payment term days. |
+| D-014 | Pause = no billing; resume has no back-billing (`next_invoice_date = max(existing, today)`). Renew extends expiry by (original expiry − start). |
+| D-015 | Catch-up: generate each missed period (cap 12 per sub per run), never beyond `expiry_date`. |
+| D-016 | "Print" = React print view with print CSS (`/invoices/:id/print`, browser Save as PDF). "Send" = Django email. Odoo PDF is stretch. |
+| D-017 | MRR = Σ active subscription line totals normalized to monthly (daily×30, weekly×52/12, monthly×1, yearly÷12); ARR = MRR×12. |
+| D-018 | Single currency INR. Odoo needs a chart of accounts to post invoices: install `l10n_in` (or generic CoA) and verify. |
+| D-019 | Overpayment rejected. Cancelled invoices keep their (subscription, period_start) slot; only an admin "re-open period" action may re-bill it (stretch). |
+| D-020 | Notifications: one `notify()` service with channels email + WhatsApp, logged in `NotificationLog`, spec in `docs/NOTIFICATIONS.md`. Sending never blocks or fails the originating request. |
+| D-021 | WhatsApp provider is pluggable (`console` default, `twilio` sandbox for the demo, `meta` optional). The app must run fully with `console`. |
+| D-022 | WhatsApp is sent only to customers with an explicit opt-in and a valid E.164 number (default +91 for 10-digit input). Password-reset links are email-only. |
+| D-023 | De-duplication via UNIQUE `dedupe_key` (event + object + channel + variant) so reruns of billing/reminders never double-notify. Manual "Send" uses `force=True`. |
+| D-024 | Reminders: due-soon at 3 days before due, overdue at day 1 and day 7, expiring at 7 days before expiry; run via `run_notifications` (called by `run_billing`, a button, or cron). |
+| D-025 | Sandbox/test WhatsApp accounts reach only pre-registered numbers and free-form text works only inside the 24 h window; production needs a verified business account and approved templates. Say so in the pitch. |
+
+## Added during build
+
+| ID | Date | Decision · reason |
+|---|---|---|
+| D-026 | 2026-10-31 | `accounts.User` (email, name, role, `Lower(email)` unique constraint) is created in Phase 0, not Phase 1. `AUTH_USER_MODEL` must exist before the first `migrate`, and swapping it later means resetting migrations. `CustomerProfile` and the auth API stay in Phase 1. |
+| D-027 | 2026-10-31 | `docs/NOTIFICATIONS.md` was described as "provided with this plan" but was not in the repo. It is authored here from D-020…D-025 and KICKOFF §8 Phase 7. Replace with the original if it turns up. |
+| D-028 | 2026-10-31 | Local dev uses a Python 3.10 venv (machine has 3.10 only; Django 5.2 supports it). Docker images use 3.12 per D-002. Don't use 3.11+-only syntax. |
+| D-029 | 2026-10-31 | `DATABASE_URL` unset falls back to sqlite for zero-setup dev. Billing concurrency tests (`select_for_update(skip_locked)`) require Postgres — run them against `db_app`. |
+| D-030 | 2026-10-31 | Docker Desktop 4.86 launched on the dev laptop but its engine never came up (it logged an error dialog at startup and `docker info` hangs; `wsl.exe` is not on PATH), so Odoo could not be started during Phase 0. Per KICKOFF §8 Phase 0 fallback: `ODOO_ENABLED=false`, logged in `TASKS.md ## Cut`; Odoo is brought up on a Docker-capable machine and retried in Phase 4. Compose files, `odoo.conf` and the smoke script are written and ready. |
