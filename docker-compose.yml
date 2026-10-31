@@ -1,0 +1,52 @@
+services:
+  db_app:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: brightloop
+      POSTGRES_USER: brightloop
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brightloop}
+    volumes: [app_pg:/var/lib/postgresql/data]
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brightloop"]
+      interval: 5s
+      retries: 10
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://brightloop:${POSTGRES_PASSWORD:-brightloop}@db_app:5432/brightloop
+      ODOO_URL: http://odoo:8069
+    command: sh -c "python manage.py migrate --noinput && exec gunicorn config.wsgi -b 0.0.0.0:8000 --workers 3 --access-logfile -"
+    ports: ["8000:8000"]
+    depends_on:
+      db_app: { condition: service_healthy }
+
+  db_odoo:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes: [odoo_pg:/var/lib/postgresql/data]
+
+  odoo:
+    image: odoo:18.0
+    restart: unless-stopped
+    depends_on: [db_odoo]
+    ports: ["8069:8069"]
+    volumes:
+      - ./odoo/config:/etc/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - odoo_data:/var/lib/odoo
+
+volumes:
+  app_pg:
+  odoo_pg:
+  odoo_data:
