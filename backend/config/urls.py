@@ -17,6 +17,25 @@ def spa(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     re_path(r"^api/healthz/?$", health),
+<<<<<<< HEAD
     path("api/", include("apps.accounts.urls")),
+=======
+
+    path("api/", include("apps.core.accounts.urls")),
+    path("api/", include("apps.core.catalog.urls")),
+    path("api/", include("apps.core.subscriptions.urls")),
+    path("api/", include("apps.core.billing.urls")),
+    path("api/", include("apps.finance.discounts.urls")),
+    path("api/", include("apps.finance.payments.urls")),
+    path("api/", include("apps.finance.notifications.urls")),
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+=======
+>>>>>>> other-repo/phase-8a
+=======
+    path("api/", include("apps.finance.dashboard.urls")),
+>>>>>>> other-repo/phase-8b
+>>>>>>> recovery-old-main
     re_path(r"^(?!api/|admin/|static/).*$", spa),
 ]

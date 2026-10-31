@@ -31,6 +31,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
+    "apps.core.accounts",
+    "apps.core.catalog",
+    "apps.core.subscriptions",
+    "apps.core.billing",
+    "apps.finance.discounts",
+    "apps.finance.payments",
+    "apps.finance.notifications",
+    "apps.finance.dashboard",
+<<<<<<< HEAD
     "apps.accounts",
     "apps.catalog",
     "apps.subscriptions",
@@ -39,6 +48,9 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.notifications",
     "apps.dashboard",
+
+=======
+>>>>>>> other-repo/phase-5-discounts
 ]
 
 MIDDLEWARE = [
@@ -78,7 +90,11 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "accounts.User"
+<<<<<<< HEAD
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "apps.accounts.validators.PasswordRuleValidator"}]  # D-006
+=======
+AUTH_PASSWORD_VALIDATORS = [{"NAME": "apps.core.accounts.validators.PasswordRuleValidator"}]  # D-006
+>>>>>>> recovery-old-main
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # reset links live 24 h; single-use because the hash changes
 
 LANGUAGE_CODE = "en-us"
@@ -106,8 +122,7 @@ if not DEBUG:
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 25,
+    "DEFAULT_PAGINATION_CLASS": "config.pagination.StandardPagination",
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
@@ -117,7 +132,7 @@ REST_FRAMEWORK = {
 }
 
 # --- email (D-007) ---
-EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND") or "apps.finance.notifications.email_backend.ConsoleEmailBackend"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
@@ -131,6 +146,9 @@ ODOO_URL = os.environ.get("ODOO_URL", "http://localhost:8069").rstrip("/")
 ODOO_DB = os.environ.get("ODOO_DB", "odoo_sub")
 ODOO_USER = os.environ.get("ODOO_USER", "admin")
 ODOO_PASSWORD = os.environ.get("ODOO_PASSWORD") or os.environ.get("ODOO_API_KEY", "")
+
+# --- payments (D-041): failed attempts allowed per invoice before it is flagged and further attempts are refused ---
+PAYMENT_MAX_ATTEMPTS = int(os.environ.get("PAYMENT_MAX_ATTEMPTS", "3"))
 
 # --- notifications (D-020..D-025) ---
 WHATSAPP_PROVIDER = os.environ.get("WHATSAPP_PROVIDER", "console")
