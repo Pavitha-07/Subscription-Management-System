@@ -18,7 +18,7 @@ Frontend on Vercel, Django API on Render, Postgres on Neon, auth on Firebase (D-
 
 ## 3. Render (backend)
 1. Push the repo to GitHub. Render → **New → Blueprint** → pick the repo; it reads `render.yaml` and builds `backend/Dockerfile` (API only).
-2. Keep the service name `brightloop` (its URL is then `https://odoo-private.onrender.com`, which `frontend/vercel.json` points at). If Render gives you a different URL, edit the three `destination`s in `frontend/vercel.json`.
+2. Keep the service name `brightloop` (its URL is then `https://brightloop-main.onrender.com`, which `frontend/vercel.json` points at). If Render gives you a different URL, edit the three `destination`s in `frontend/vercel.json`.
 3. Fill the prompted secrets:
 
 | Variable | Value |

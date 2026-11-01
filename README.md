@@ -8,7 +8,7 @@ Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as 
 
 
 [![Frontend Deployment](https://img.shields.io/badge/Frontend-Vercel-black?style=flat&logo=vercel)](https://brightloop.vercel.app)
-[![Backend API](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://odoo-private.onrender.com/api/healthz)
+[![Backend API](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://brightloop-main.onrender.com/api/healthz)
 
 `React 18` · `Django 5 + DRF` · `PostgreSQL` · `Odoo 18` · `Firebase Auth`
 
@@ -46,7 +46,7 @@ Brightloop is deployed across Vercel (frontend) and Render (backend) with isolat
 | Component | Platform | Environment / Target | Status | Health / Endpoint |
 |---|---|---|---|---|
 | **Frontend** | [Vercel](https://vercel.com) | `frontend/` (Vite + React 18) | ![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel) | Proxies `/api/*` to Render |
-| **Backend API** | [Render](https://render.com) | [`render.yaml`](render.yaml) (Django 5 in Docker) | ![Render](https://img.shields.io/badge/Deployed-Render-46E3B7?logo=render&logoColor=white) | [`/api/healthz`](https://odoo-private.onrender.com/api/healthz) |
+| **Backend API** | [Render](https://render.com) | [`render.yaml`](render.yaml) (Django 5 in Docker) | ![Render](https://img.shields.io/badge/Deployed-Render-46E3B7?logo=render&logoColor=white) | [`/api/healthz`](https://brightloop-main.onrender.com/api/healthz) |
 | **Database** | [Neon](https://neon.tech) | Serverless PostgreSQL 16 | ![Neon](https://img.shields.io/badge/Active-Neon%20Postgres-00E599?logo=postgresql&logoColor=white) | Direct connection with SSL |
 | **Authentication** | [Firebase](https://firebase.google.com) | Google & Email Auth | ![Firebase](https://img.shields.io/badge/Active-Firebase%20Auth-FFCA28?logo=firebase&logoColor=black) | First-party session cookies |
 | **Ledger (Optional)** | Odoo 18 | Community Edition via XML-RPC | ![Odoo](https://img.shields.io/badge/Optional-Disabled%20in%20Prod-714B67?logo=odoo&logoColor=white) | Non-blocking retry queue |
