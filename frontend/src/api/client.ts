@@ -10,6 +10,8 @@ function csrfToken(): string {
   return m ? decodeURIComponent(m[1]) : "";
 }
 
+const TIMEOUT_MS = 12_000;
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -18,6 +20,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     method,
     headers,
     credentials: "include",
+    signal: AbortSignal.timeout(TIMEOUT_MS), // a hung backend must fail, not leave a loader spinning forever
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = res.status === 204 ? null : await res.json().catch(() => null);

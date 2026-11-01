@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data, isLoading } = useQuery({
     queryKey: ["me"],
     staleTime: Infinity,
+    retry: 1, // one more try rides out a cold-starting backend; after that the loader gives way to the login page
     queryFn: async () => {
       await api.get("/api/auth/csrf/"); // makes sure the csrftoken cookie exists before any POST
       try {

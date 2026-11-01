@@ -5,6 +5,7 @@ import LatticeLoader from "./LatticeLoader";
 
 const FLAG = "bl_splash"; // once per browser tab session: reloads and in-app navigation skip it
 const MIN_MS = 2200; // long enough for the lattice to run a couple of laps
+const MAX_MS = 8000; // never hold the splash longer than this, whatever the API is doing
 const FINISH_MS = 650; // the check mark holds this long before the screen fades away
 
 const seen = () => {
@@ -16,12 +17,14 @@ export function SplashGate({ children }: { children: ReactNode }) {
   const { loading } = useAuth();
   const [show, setShow] = useState(() => !seen());
   const [minDone, setMinDone] = useState(false);
-  const ready = minDone && !loading;
+  const [capped, setCapped] = useState(false);
+  const ready = minDone && (!loading || capped);
 
   useEffect(() => {
     if (!show) return void document.documentElement.classList.remove("boot");
     const t = setTimeout(() => setMinDone(true), MIN_MS);
-    return () => clearTimeout(t);
+    const c = setTimeout(() => setCapped(true), MAX_MS);
+    return () => { clearTimeout(t); clearTimeout(c); };
   }, [show]);
 
   useEffect(() => {
