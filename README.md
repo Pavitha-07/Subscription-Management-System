@@ -7,7 +7,7 @@
 Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as the accounting ledger.
 
 
-**[🌐 Live website](https://brightloop-main.vercel.app/)** · **[🎬 Showcase video](docs/images/showcasevid.mp4)** · **[📂 Walkthrough](https://drive.google.com/drive/u/0/folders/1_5psBvYQaWc1H15S4nwWXTRXCVZ4XwkI)**
+**[🌐 Live website](https://brightloop-main.vercel.app/)** · **[🎬 Showcase video](https://youtu.be/BrrqOpoZyg4)** · **[📂 Walkthrough](https://drive.google.com/drive/u/0/folders/1_5psBvYQaWc1H15S4nwWXTRXCVZ4XwkI)**
 
 [![Frontend Deployment](https://img.shields.io/badge/Frontend-Vercel-black?style=flat&logo=vercel)](https://brightloop-main.vercel.app/)
 [![Backend API](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://brightloop-main.onrender.com/api/healthz)
@@ -25,6 +25,17 @@ Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as 
 Spreadsheets for subscriptions, hand-typed invoices, missed renewals, payments matched by scrolling bank statements. Brightloop replaces all of it with one system.
 
 <img src="docs/images/lifecycle.png" alt="Subscription lifecycle" width="850">
+
+## Showcase video
+
+<div align="center">
+
+[![Brightloop showcase video (click to watch the full video)](docs/images/showcase-preview.gif)](https://youtu.be/BrrqOpoZyg4)
+
+▶️ Click the preview to watch the full video on YouTube.
+
+</div>
+
 
 ## Features
 
