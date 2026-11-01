@@ -73,6 +73,14 @@ function Shell() {
   // Expanded the first time the app opens; after that the visitor's own choice sticks. (New key: an old "collapsed" value from the
   // earlier default must not keep hiding the labels.)
   const [expanded, setExpanded] = useState(() => { try { return localStorage.getItem("rail-expanded-v2") !== "0"; } catch { return true; } });
+  // Below lg the labelled rail would crowd the content, so it stays icon-only there (and the toggle is hidden).
+  const [wide, setWide] = useState(() => window.matchMedia("(min-width: 1024px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const on = () => setWide(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   const toggleExpanded = () => setExpanded((e) => { try { localStorage.setItem("rail-expanded-v2", e ? "0" : "1"); } catch { /* private mode */ } return !e; });
 
   useEffect(() => {
@@ -96,12 +104,13 @@ function Shell() {
     { label: "Toggle theme", Icon: Sun, run: toggle },
     { label: "Log out", Icon: LogOut, run: doLogout },
   ];
+  const open = expanded && wide;
   const initial = (user.name || user.email).charAt(0).toUpperCase();
   const avatar = <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-b from-[#409cff] to-[#0071e3] font-semibold text-white">{initial}</span>;
   const first = (user.name || user.email.split("@")[0]).split(" ")[0];
   const here = items.find((n) => (n.to === "/" ? pathname === "/" : pathname.startsWith(n.to)))?.label;
   // one row style for every rail button: a 48px circle when collapsed, a full-width pill with a label when expanded
-  const row = `tap relative shrink-0 rounded-full ${expanded ? "flex w-full items-center gap-3 px-3.5" : "grid w-12 place-items-center"}`;
+  const row = `tap relative shrink-0 rounded-full ${open ? "flex w-full items-center gap-3 px-3.5" : "grid w-12 place-items-center"}`;
 
   return (
     // md+: a fixed-height shell. The header and the rail never scroll; only the content column does. Phones keep the normal page flow.
@@ -129,7 +138,7 @@ function Shell() {
             </button>
           </Glass>
           <div className="relative">
-            <button aria-label="Profile menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)} className="tap rounded-full">{avatar}</button>
+            <button aria-label="Profile menu" aria-open={menu} onClick={() => setMenu((m) => !m)} className="tap rounded-full">{avatar}</button>
             <AnimatePresence>
               {menu && (
                 <>
@@ -147,33 +156,33 @@ function Shell() {
 
         <div className="mt-6 flex items-start gap-5 md:min-h-0 md:flex-1 md:items-stretch md:gap-6">
           {/* Floating icon rail (md+): one glass pill pinned to the shell height; the active item is a filled circle that slides */}
-          <motion.aside animate={{ width: expanded ? 232 : 76 }} transition={{ duration: 0.28, ease: EASE }} className="no-print hidden shrink-0 overscroll-contain md:block md:h-full">
-            <Glass flat className={`flex h-full flex-col overflow-hidden p-3 ${expanded ? "!rounded-[36px]" : "items-center !rounded-full"}`}>
-              <button aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"} aria-expanded={expanded} title={expanded ? "Collapse" : "Expand"} onClick={toggleExpanded} className={`${row} mb-1 h-12 text-fg2 hover:bg-[var(--sel)] hover:text-fg`}>
-                {expanded ? <ChevronsLeft size={19} /> : <ChevronsRight size={19} />}
-                {expanded && <span className="truncate text-sm font-medium">Collapse</span>}
-              </button>
-              {/* No scrolling: when the window is short the items compress (flex-1, 36-48px) instead of overflowing */}
-              <nav aria-label="Main" className={`flex min-h-0 flex-1 flex-col gap-1 overflow-hidden ${expanded ? "" : "items-center"}`}>
+          <motion.aside animate={{ width: open ? 232 : 76 }} transition={{ duration: 0.28, ease: EASE }} className="no-print hidden shrink-0 overscroll-contain md:block md:h-full">
+            <Glass flat className={`flex h-full flex-col overflow-hidden p-3 ${open ? "!rounded-[36px]" : "items-center !rounded-full"}`}>
+              {wide && <button aria-label={open ? "Collapse sidebar" : "Expand sidebar"} aria-open={open} title={open ? "Collapse" : "Expand"} onClick={toggleExpanded} className={`${row} mb-1 h-12 text-fg2 hover:bg-[var(--sel)] hover:text-fg`}>
+                {open ? <ChevronsLeft size={19} /> : <ChevronsRight size={19} />}
+                {open && <span className="truncate text-sm font-medium">Collapse</span>}
+              </button>}
+              {/* Items compress (36-48px) as the window gets short, then the list scrolls (scrollbar hidden) so nothing is clipped or overlaps the footer */}
+              <nav aria-label="Main" className={`flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${open ? "" : "items-center"}`}>
                 <LayoutGroup id="nav">
                   {items.map((n) => (
-                    <NavLink key={n.to} to={n.to} end={n.end} title={expanded ? undefined : n.label} aria-label={n.label} className={({ isActive }) => `${row} min-h-9 max-h-12 flex-1 transition-colors ${isActive ? "text-[var(--bg)]" : "text-fg2 hover:bg-[var(--sel)] hover:text-fg"}`}>
+                    <NavLink key={n.to} to={n.to} end={n.end} title={open ? undefined : n.label} aria-label={n.label} className={({ isActive }) => `${row} min-h-9 max-h-12 flex-1 shrink-0 transition-colors ${isActive ? "text-[var(--bg)]" : "text-fg2 hover:bg-[var(--sel)] hover:text-fg"}`}>
                       {({ isActive }) => (
                         <>
                           {isActive && <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-full bg-[var(--fg)] shadow-lg" transition={{ type: "spring", stiffness: 380, damping: 32 }} />}
                           <n.Icon size={19} className="relative shrink-0" />
-                          {expanded && <span className="relative truncate text-sm font-medium">{n.label}</span>}
+                          {open && <span className="relative truncate text-sm font-medium">{n.label}</span>}
                         </>
                       )}
                     </NavLink>
                   ))}
                 </LayoutGroup>
               </nav>
-              <div className={`flex shrink-0 flex-col gap-1 pt-2 ${expanded ? "" : "items-center"}`}>
-                <button aria-label="Log out" title="Log out" onClick={doLogout} className={`${row} h-11 text-fg2 hover:bg-[var(--sel)] hover:text-fg`}><LogOut size={18} className="shrink-0" />{expanded && <span className="truncate text-sm font-medium">Log out</span>}</button>
-                <Link to="/profile" aria-label="Profile" className={`mt-1 flex items-center gap-3 ${expanded ? "px-1" : ""}`}>
+              <div className={`flex shrink-0 flex-col gap-1 pt-2 ${open ? "" : "items-center"}`}>
+                <button aria-label="Log out" title="Log out" onClick={doLogout} className={`${row} h-11 text-fg2 hover:bg-[var(--sel)] hover:text-fg`}><LogOut size={18} className="shrink-0" />{open && <span className="truncate text-sm font-medium">Log out</span>}</button>
+                <Link to="/profile" aria-label="Profile" className={`mt-1 flex items-center gap-3 ${open ? "px-1" : ""}`}>
                   {avatar}
-                  {expanded && <span className="min-w-0 leading-tight"><span className="block truncate text-sm font-semibold">{user.name || user.email}</span><span className="block text-xs capitalize text-muted">{user.role}</span></span>}
+                  {open && <span className="min-w-0 leading-tight"><span className="block truncate text-sm font-semibold">{user.name || user.email}</span><span className="block text-xs capitalize text-muted">{user.role}</span></span>}
                 </Link>
               </div>
             </Glass>
