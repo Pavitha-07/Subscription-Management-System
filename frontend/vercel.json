@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://odoo-private.onrender.com/api/$1" },
+    { "source": "/admin/(.*)", "destination": "https://odoo-private.onrender.com/admin/$1" },
+    { "source": "/static/(.*)", "destination": "https://odoo-private.onrender.com/static/$1" },
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  ]
+}
