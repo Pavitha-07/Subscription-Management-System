@@ -7,7 +7,9 @@
 Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as the accounting ledger.
 
 
-[![Frontend Deployment](https://img.shields.io/badge/Frontend-Vercel-black?style=flat&logo=vercel)](https://brightloop.vercel.app)
+**[🌐 Live website](https://brightloop-main.vercel.app/)** · **[🎬 Showcase video](docs/images/showcasevid.mp4)** · **[📂 Walkthrough](https://drive.google.com/drive/u/0/folders/1_5psBvYQaWc1H15S4nwWXTRXCVZ4XwkI)**
+
+[![Frontend Deployment](https://img.shields.io/badge/Frontend-Vercel-black?style=flat&logo=vercel)](https://brightloop-main.vercel.app/)
 [![Backend API](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://brightloop-main.onrender.com/api/healthz)
 
 `React 18` · `Django 5 + DRF` · `PostgreSQL` · `Odoo 18` · `Firebase Auth`
