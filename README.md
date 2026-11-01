@@ -14,6 +14,10 @@ Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as 
 
 `React 18` · `Django 5 + DRF` · `PostgreSQL` · `Odoo 18` · `Firebase Auth`
 
+[![Brightloop showcase video (click to watch the full video)](docs/images/showcase-preview.gif)](https://youtu.be/BrrqOpoZyg4)
+
+▶️ Click the preview to watch the full video on YouTube.
+
 <img src="docs/images/dashboard.png" alt="Brightloop dashboard" width="850">
 
 </div>
@@ -25,17 +29,6 @@ Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as 
 Spreadsheets for subscriptions, hand-typed invoices, missed renewals, payments matched by scrolling bank statements. Brightloop replaces all of it with one system.
 
 <img src="docs/images/lifecycle.png" alt="Subscription lifecycle" width="850">
-
-## Showcase video
-
-<div align="center">
-
-[![Brightloop showcase video (click to watch the full video)](docs/images/showcase-preview.gif)](https://youtu.be/BrrqOpoZyg4)
-
-▶️ Click the preview to watch the full video on YouTube.
-
-</div>
-
 
 ## Features
 
