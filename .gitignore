@@ -13,3 +13,4 @@ staticfiles/
 brag-output/work/chrome-profile/
 brag-output/work/frames/
 brag-output/work/chrome-profile/
+.offline-markdown-preview/

@@ -6,12 +6,13 @@
 
 Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as the accounting ledger.
 
-![CI](https://github.com/Pavitha-07/Subscription-Management-System/actions/workflows/ci.yml/badge.svg)
-![CD](https://github.com/Pavitha-07/Subscription-Management-System/actions/workflows/cd.yml/badge.svg)
+
+[![Frontend Deployment](https://img.shields.io/badge/Frontend-Vercel-black?style=flat&logo=vercel)](https://brightloop.vercel.app)
+[![Backend API](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://odoo-private.onrender.com/api/healthz)
 
 `React 18` · `Django 5 + DRF` · `PostgreSQL` · `Odoo 18` · `Firebase Auth`
 
-<img src="docs/images/dashboard.jpg" alt="Brightloop dashboard" width="850">
+<img src="docs/images/dashboard.png" alt="Brightloop dashboard" width="850">
 
 </div>
 
@@ -21,7 +22,7 @@ Plans · Subscriptions · Invoices · Payments · Revenue reports, with Odoo as 
 
 Spreadsheets for subscriptions, hand-typed invoices, missed renewals, payments matched by scrolling bank statements. Brightloop replaces all of it with one system.
 
-<img src="docs/images/lifecycle.jpg" alt="Subscription lifecycle" width="850">
+<img src="docs/images/lifecycle.png" alt="Subscription lifecycle" width="850">
 
 ## Features
 
@@ -37,6 +38,20 @@ Spreadsheets for subscriptions, hand-typed invoices, missed renewals, payments m
 | 📊 **Dashboard** | Active subscriptions, revenue, outstanding, overdue and monthly trend. |
 | 🔔 **Notifications** | Email and WhatsApp for invoices, receipts and reminders. Failures never block billing. |
 | 📒 **Odoo ledger** | Taxes, products, customers and invoices mirrored to Odoo. Retries if Odoo is down. |
+
+## Deployment & Status
+
+Brightloop is deployed across Vercel (frontend) and Render (backend) with isolated data and auth layers:
+
+| Component | Platform | Environment / Target | Status | Health / Endpoint |
+|---|---|---|---|---|
+| **Frontend** | [Vercel](https://vercel.com) | `frontend/` (Vite + React 18) | ![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel) | Proxies `/api/*` to Render |
+| **Backend API** | [Render](https://render.com) | [`render.yaml`](render.yaml) (Django 5 in Docker) | ![Render](https://img.shields.io/badge/Deployed-Render-46E3B7?logo=render&logoColor=white) | [`/api/healthz`](https://odoo-private.onrender.com/api/healthz) |
+| **Database** | [Neon](https://neon.tech) | Serverless PostgreSQL 16 | ![Neon](https://img.shields.io/badge/Active-Neon%20Postgres-00E599?logo=postgresql&logoColor=white) | Direct connection with SSL |
+| **Authentication** | [Firebase](https://firebase.google.com) | Google & Email Auth | ![Firebase](https://img.shields.io/badge/Active-Firebase%20Auth-FFCA28?logo=firebase&logoColor=black) | First-party session cookies |
+| **Ledger (Optional)** | Odoo 18 | Community Edition via XML-RPC | ![Odoo](https://img.shields.io/badge/Optional-Disabled%20in%20Prod-714B67?logo=odoo&logoColor=white) | Non-blocking retry queue |
+
+Step-by-step setup and secrets configuration: **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
 ## Design principles
 
@@ -85,10 +100,6 @@ Demo logins: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 | [`cd.yml`](.github/workflows/cd.yml) | CI passes on `main` | Publishes the image to GHCR and triggers the Render deploy hook |
 
 For CD, add the repository secret `RENDER_DEPLOY_HOOK` (optional; skipped if unset).
-
-## Deploy
-
-Vercel (frontend) + Render (API, [`render.yaml`](render.yaml)) + Neon (Postgres) + Firebase (auth). See [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Handy commands
 
