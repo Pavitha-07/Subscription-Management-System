@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Briefcase, ShieldCheck, User as UserIcon, type LucideIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { ApiError } from "../api/client";
+import { api, ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthProvider";
 import { AuthShell } from "../components/Layout";
+import CodeSlots from "../components/CodeSlots";
 import GoogleButton from "../components/GoogleButton";
 import type { Field } from "../components/ResourceForm";
 import ResourceForm from "../components/ResourceForm";
+
+// demo build: the registration codes are shown on the page. Set VITE_SHOW_DEMO=false on the host to hide them.
+const SHOW_DEMO = import.meta.env.VITE_SHOW_DEMO !== "false";
 
 type Kind = "customer" | "staff" | "admin";
 const KINDS: { kind: Kind; label: string; blurb: string; Icon: LucideIcon }[] = [
@@ -30,6 +34,7 @@ export default function Signup() {
   const navigate = useNavigate();
   const [kind, setKind] = useState<Kind | null>(null);
   const [code, setCode] = useState("");
+  const [codeStatus, setCodeStatus] = useState<"idle" | "success" | "error">("idle");
 
   if (!kind) {
     return (
@@ -47,23 +52,46 @@ export default function Signup() {
     );
   }
 
+  const meta = KINDS.find((k) => k.kind === kind)!;
   const isCustomer = kind === "customer";
   const fields = isCustomer ? [...COMMON, ...CUSTOMER_ONLY] : COMMON;
   // staff/admin: one registration code, shared by the email form and the Google button (the server checks it, D-044)
   const needCode = () => {
-    if (!isCustomer && !code.trim()) throw new ApiError(400, { detail: `Enter the ${kind} registration code first.` });
+    if (!isCustomer && code.length < 6) throw new ApiError(400, { detail: `Enter the 6-digit ${kind} registration code first.` });
   };
   const extra = isCustomer ? { account_type: kind } : { account_type: kind, signup_code: code };
+  // the sixth digit triggers a server check; CodeSlots plays the success wash or the error drain (sign-up re-checks it anyway)
+  const verify = async (c: string) => {
+    try {
+      const r = await api.post<{ valid: boolean }>("/api/auth/check-code/", { account_type: kind, code: c });
+      setCodeStatus(r.valid ? "success" : "error");
+    } catch {
+      setCodeStatus("error");
+    }
+  };
 
   return (
     <AuthShell title={`Create your ${kind} account`}>
-      <button className="mb-3 text-sm text-sky-700" onClick={() => { setKind(null); setCode(""); }}>← Change account type</button>
+      {/* which account type this form creates, unmissable at the top */}
+      <div className="mb-4 flex items-center gap-3 rounded-xl border bg-[var(--sel)] p-3" role="status">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-sky-700 shadow-sm"><meta.Icon size={18} /></span>
+        <div className="min-w-0">
+          <p className="text-xs uppercase tracking-wide text-slate-500">You are creating a</p>
+          <p className="font-semibold">{meta.label} account</p>
+          <p className="text-xs text-slate-500">{meta.blurb}</p>
+        </div>
+      </div>
+      <button className="mb-3 text-sm text-sky-700" onClick={() => { setKind(null); setCode(""); setCodeStatus("idle"); }}>← Change account type</button>
       {!isCustomer && (
-        <label className="mb-4 block text-sm">
-          <span className="mb-1 block font-medium">Registration code</span>
-          <input type="password" autoComplete="off" value={code} onChange={(e) => setCode(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
-          <span className="mt-1 block text-xs text-slate-500">Ask an administrator for the {kind} registration code. It applies to both options below.</span>
-        </label>
+        <div className="mb-4 text-sm">
+          <span className="mb-2 block font-medium">Registration code</span>
+          <CodeSlots
+            key={kind} length={6} status={codeStatus} onComplete={verify} onChange={(c) => { setCode(c); setCodeStatus("idle"); }} ariaLabel={`${kind} registration code`}
+            slotColor="#eef2f7" inkColor="#0f172a" accentColor="#0a84ff" digitColor="#ffffff" slotSize={42} gap={8}
+          />
+          <span className="mt-2 block text-xs text-slate-500">Ask an administrator for the {kind} registration code. It applies to both options below.</span>
+          {SHOW_DEMO && <span className="mt-1 block text-xs text-slate-500">Demo codes: staff <strong className="font-mono">246813</strong> · admin <strong className="font-mono">123456</strong></span>}
+        </div>
       )}
       <ResourceForm
         key={kind}
